@@ -1,6 +1,6 @@
 package org.example.final_project.model;
 
-public abstract class FurnitureItem {
+public abstract class FurnitureItem implements Comparable<FurnitureItem> {
 
     private int itemID;
     private int quantity;
@@ -13,6 +13,11 @@ public abstract class FurnitureItem {
         this.material = material;
         this.itemID = itemID;
         this.quantity = quantity;
+    }
+
+    @Override
+    public int compareTo(FurnitureItem other) {
+        return Integer.compare(this.getItemID() , other.getItemID());
     }
 
     public abstract void displayInfo();
