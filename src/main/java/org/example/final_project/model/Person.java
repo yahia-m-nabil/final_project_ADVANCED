@@ -1,16 +1,22 @@
 package org.example.final_project.model;
 
 abstract class Person {
-private
-    int memberId;
-    String name;
-    String email;
+    private int memberId;
+    private String name;
+    private String email;
 
     public Person(int id , String name , String email){
         this.memberId=id;
         this.name = name;
         this.email = email;
     }
+
+//    public int GenerateIdusers(){
+//
+//    }
+//    public int GenerateIdsellers(){
+//
+//    }
 
     public int getMemberId() {
         return memberId;

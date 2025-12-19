@@ -1,9 +1,8 @@
 package org.example.final_project.model;
 
 public abstract class Member extends  Person {
-private
-    static int totalIdCount = 0;
-    int money;
+private static int totalIdCount = 0;
+private int money;
 
     public Member(int id , String name , String email ){
       super(id, name , email);

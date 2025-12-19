@@ -22,7 +22,7 @@ public abstract class FurnitureItem implements Comparable<FurnitureItem> {
 
     public abstract void displayInfo();
 
-    public abstract int calculatePrice(PriceTable table);
+    public abstract int calculatePrice(TableStorage table);
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
