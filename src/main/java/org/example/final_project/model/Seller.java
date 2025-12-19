@@ -1,35 +1,43 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package org.example.final_project.model;
 
-import java.util.ArrayList;
+public class  Seller extends Member {
 
-public class Seller extends Member {
-
-    private ArrayList<FurnitureItem> itemsForSale ;
-
-
-    /* ======================== constructor  functions ===================== */
-    public Seller(String name, String email , int id) {
-        super(id ,name, email);
-        this.itemsForSale = new ArrayList<>();
-    }
-    /* ======================== setters and getter  functions ===================== */
-    public void addItemForSale(FurnitureItem item) {
-        itemsForSale.add(item);
+    private FurnitureItem[] sellableFurniture;
+// Constructor
+    public Seller(int id, String name, String email, FurnitureItem[] sellableFurniture) {
+        super(id, name, email);
+        this.sellableFurniture = sellableFurniture;
     }
 
-    public ArrayList<FurnitureItem> getItemsForSale() {
-        return itemsForSale;
+    // Getter
+    public FurnitureItem[] getSellableFurniture() {
+        return sellableFurniture;
     }
-    /* ======================== money  functions ===================== */
+
+    // Setter
+    public void setSellableFurniture(FurnitureItem[] sellableFurniture) {
+        this.sellableFurniture = sellableFurniture;
+    }
+
+  
     @Override
     public int CalculateMoney() {
         int total = 0;
-        for (FurnitureItem item : itemsForSale) {
-            total += item.getPrice();
+
+        if (sellableFurniture != null) {
+            for (FurnitureItem item : sellableFurniture) {
+                if (item != null) {
+                    total += item.getPrice();
+                }
+            }
         }
+setMoney(total);
         return total;
-    }
-    /* ======================== warehouse functions ===================== */
-
-}
-
+    }}
+    
+       
+    
