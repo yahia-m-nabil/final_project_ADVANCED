@@ -63,8 +63,7 @@ public class User extends Member {
         }
         int refundAmount = ordertorefund.GetAllItemsPrice();
         setMoney(getMoney()+refundAmount);
-        ordertorefund.setStatus(OrderStatus.REFUNDED);
-       // warehouse.additems((ordertorefund.getItems()).toArray(new FurnitureItem[0]));  //returns the items to warehouse
+        warehouse.additems(ordertorefund.RefundItems());//returns the items to warehouse
         //will be replaced with GUI
         //System.out.println("Order refunded successfully! Refund Amount: " + refundAmount); =========================================================================
     }

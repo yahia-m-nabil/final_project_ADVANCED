@@ -12,22 +12,22 @@ public final class TableStorage {
         return instance;
     }
 
-    public static int[] getIdtableItems() {
+    public  int[] getIdtableItems() {
         return idtableItems;
     }
 
-    public static int[][] getIdtableMaterialColor() {
+    public  int[][] getIdtableMaterialColor() {
         return idtableMaterialColor;
     }
 
-    public static int getnumberOfItems() {
+    public  int getnumberOfItems() {
         return (idtableItems.length*(idtableMaterialColor.length*idtableMaterialColor[0].length));
     }
 
-    public static int getMaterialPrice(int row , Materials col) {
+    public  int getMaterialPrice(int row , Materials col) {
         return itemMaterial[row][col.ordinal()];
     }
-    public static double getColor(int row , Colors col) {
+    public  double getColorPrice(int row , Colors col) {
         return materialColor[row][col.ordinal()];
     }
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0); -fx-background-radius: 5;"
+      prefWidth="220" prefHeight="300" spacing="10" alignment="TOP_CENTER">
+
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <ImageView fx:id="itemImage" fitHeight="120" fitWidth="180" preserveRatio="true" style="-fx-background-color: #ddd;" />
+
+    <Label fx:id="itemName" text="Modern Desk" style="-fx-font-size: 16px; -fx-font-weight: bold;" wrapText="true"/>
+
+    <HBox spacing="5" alignment="CENTER">
+        <Label fx:id="itemMaterial" text="Wood" style="-fx-background-color: #eee; -fx-padding: 3 8; -fx-font-size: 10px; -fx-text-fill: #555;"/>
+        <Label fx:id="itemColor" text="Brown" style="-fx-background-color: #eee; -fx-padding: 3 8; -fx-font-size: 10px; -fx-text-fill: #555;"/>
+    </HBox>
+
+    <HBox alignment="CENTER" spacing="10">
+        <Label fx:id="itemPrice" text="\$150.00" style="-fx-font-size: 14px;"/>
+
+        <Label fx:id="discountLabel" text="10% OFF" visible="false" style="-fx-text-fill: red; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <VBox spacing="8" alignment="CENTER">
+        <Button text="Add to Cart" maxWidth="Infinity" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-cursor: hand;"/>
+        <Button text="Add to Wishlist" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: #ccc; -fx-text-fill: #333;"/>
+    </VBox>
+
+</VBox>

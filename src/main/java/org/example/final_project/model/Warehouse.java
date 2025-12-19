@@ -2,7 +2,6 @@ package org.example.final_project.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
 public class Warehouse {
     private String location;
     private ArrayList<FurnitureItem> Inventory;

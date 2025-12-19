@@ -40,28 +40,30 @@ public class Order {
         return price;
     }
 
-    public FurnitureItem RefundItems(int itemID){
-        FurnitureItem refunditem=null;
-        for(int i=0;i<items.size();i++) {
-            if(items.get(i).getItemID() == itemID){
-                refunditem = items.get(i);
-                items.remove(i);
-                break;
+//    public FurnitureItem RefundItem(int itemID){
+//        FurnitureItem refunditem=null;
+//        for(int i=0;i<items.size();i++) {
+//            if(items.get(i).getItemID() == itemID){
+//                refunditem = items.get(i);
+//                items.remove(i);
+//                break;
+//
+//            }
+//        }
+//        if (items.isEmpty()){
+//            setStatus(OrderStatus.REFUNDED);
+//        }
+//        if (refunditem==null){
+//            return null ;
+//        }
+//        return refunditem;
+//    }
 
-            }
-        }
-        if (items.isEmpty()){
-            setStatus(OrderStatus.REFUNDED);
-        }
-        if (refunditem==null){
-            return null ;
-        }
-        return refunditem;
-    }
-
-
-    public void setItems(FurnitureItem[] items) {
-        this.items = new ArrayList<>();
+    public ArrayList<FurnitureItem> RefundItems(){
+        ArrayList<FurnitureItem> refunditems = new ArrayList<>(items);
+        items.clear();
+        setStatus(OrderStatus.REFUNDED);
+        return refunditems;
     }
 
     public OrderStatus getStatus() {

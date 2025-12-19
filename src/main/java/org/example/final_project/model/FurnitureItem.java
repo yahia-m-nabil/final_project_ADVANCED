@@ -20,9 +20,11 @@ public abstract class FurnitureItem implements Comparable<FurnitureItem> {
         return Integer.compare(this.getItemID() , other.getItemID());
     }
 
-    public abstract void displayInfo();
+    //public abstract void displayInfo();
 
     public abstract int calculatePrice(TableStorage table);
+
+    public void setPrice(int price) {this.price = price;}
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;

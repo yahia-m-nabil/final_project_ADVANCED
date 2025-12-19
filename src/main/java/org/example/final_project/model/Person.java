@@ -34,7 +34,7 @@ abstract class Person {
         return email;
     }
 
-    public void  displayInfo(){
-        System.out.println("Name is " + name + "\nEmail is " + email + "\nid is " + memberId );
-    }
+//    public void  displayInfo(){
+//        System.out.println("Name is " + name + "\nEmail is " + email + "\nid is " + memberId );
+//    }
 }
