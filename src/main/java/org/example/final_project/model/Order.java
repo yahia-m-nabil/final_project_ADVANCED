@@ -35,7 +35,7 @@ public class Order {
     public int GetAllItemsPrice(){
         int price=0;
         for(FurnitureItem z : items){
-            price += z.getPrice();
+            price += z.getPrice() * z.getQuantity();
         }
         return price;
     }

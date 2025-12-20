@@ -1,7 +1,5 @@
 package org.example.final_project.model;
 
-import java.util.ArrayList;
-
 public class Admin extends Person {
     private MembersList MembersData;
     private WarehouseList WarehouseData;
@@ -38,6 +36,10 @@ public class Admin extends Person {
 
     public void DisplayAllItems(){
 
+    }
+
+    public void FindItemById(int id){
+        
     }
 }
 

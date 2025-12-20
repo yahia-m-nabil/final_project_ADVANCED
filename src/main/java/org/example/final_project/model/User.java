@@ -33,6 +33,11 @@ public class User extends Member {
         Order newOrder = new Order(Order.generateOrderId(), itemsArray);
         addToOrderHistory(newOrder);
 
+        // Remove items from warehouse based on quantities
+        for (FurnitureItem item : wishlist) {
+            warehouse.removeItems(item.getItemID(), item.getQuantity());
+        }
+
         // Clear the wishlist after checkout
         //warehouse.removeitems(itemsArray); //removes the items from warehouse
         wishlist.clear();
@@ -63,7 +68,13 @@ public class User extends Member {
         }
         int refundAmount = ordertorefund.GetAllItemsPrice();
         setMoney(getMoney()+refundAmount);
-        warehouse.additems(ordertorefund.RefundItems());//returns the items to warehouse
+        
+        // Return items to warehouse
+        ArrayList<FurnitureItem> refundedItems = ordertorefund.RefundItems();
+        for (FurnitureItem item : refundedItems) {
+            warehouse.addItems(item, item.getQuantity());
+        }
+        
         //will be replaced with GUI
         //System.out.println("Order refunded successfully! Refund Amount: " + refundAmount); =========================================================================
     }
@@ -83,6 +94,15 @@ public class User extends Member {
     public ArrayList<FurnitureItem> getWishlist() {
         return wishlist;
     }
+    
+    public FurnitureItem findItemInWishlist(int itemID) {
+        for (FurnitureItem item : wishlist) {
+            if (item.getItemID() == itemID) {
+                return item;
+            }
+        }
+        return null;
+    }
 
     public void addToWishlist(FurnitureItem item) {
         for (FurnitureItem f : wishlist) {
@@ -95,18 +115,19 @@ public class User extends Member {
     }
 
     public void removeFromWishlist(int itemid , int quantity) {
-        FurnitureItem item = null;
-        for (FurnitureItem f : wishlist) {
-            if (f.getItemID() == itemid) {
-                item = f;
-                break;
-            }
+        FurnitureItem item = findItemInWishlist(itemid);
+        if (item == null) {
+            throw new IllegalArgumentException("Item not found in wishlist");
         }
-        if(item.getQuantity()==0 || item.getQuantity()<quantity){
+        if (item.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient quantity in wishlist");
+        }
+        
+        int newQuantity = item.getQuantity() - quantity;
+        if (newQuantity == 0) {
             wishlist.remove(item);
-        }
-        else{
-            item.setQuantity(item.getQuantity()-quantity);
+        } else {
+            item.setQuantity(newQuantity);
         }
     }
 
@@ -121,7 +142,7 @@ public class User extends Member {
         int total = 0;
         int CustomerTax = 15; // 15% tax
         for (FurnitureItem item : wishlist) {
-            total += item.getPrice();
+            total += item.getPrice() * item.getQuantity();
         }
         return (total + (total * CustomerTax / 100));
     }
