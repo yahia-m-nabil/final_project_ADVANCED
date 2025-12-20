@@ -13,18 +13,18 @@ public class Admin extends Person {
         this.WarehouseData = warehousedata;
     }
 
-    public void DisplayAllUsers(){
+    public void DisplayAllUsers() {
         ArrayList<Member> allMembers = MembersData.getAllMembers();
         for (Member member : allMembers) {
-          //  member.displayInfo();
+            //  member.displayInfo();
         }
     }
 
-    public void DisplayAllSellers(){
+    public void DisplayAllSellers() {
         ArrayList<Member> allMembers = MembersData.getAllMembers();
         for (Member member : allMembers) {
-            if (member instanceof Seller){
-              //  member.displayInfo();
+            if (member instanceof Seller) {
+                //  member.displayInfo();
             }
         }
     }
@@ -39,38 +39,40 @@ public class Admin extends Person {
     public void DisplayAllItems() {
 //        for (FurnitureItem item : WarehouseData.getAllItems()) {
 //            //item.displayInfo();
+//
 //        }
     }
 
-    public void removeMember(int id){
-        MembersData.removeMember(id);
+        public void removeMember ( int id){
+            MembersData.removeMember(id);
+        }
+
+        public void removeWarehouse (String location){
+            WarehouseData.removeWarehouse(location);
+        }
+
+        public void addMember (Member member){
+            MembersData.addMember(member);
+        }
+        public void addWarehouse (Warehouse warehouse){
+            WarehouseData.addWarehouse(warehouse);
+        }
+
+        public void applyDiscount (String location,double discountPercentage){
+            Warehouse warehouse = WarehouseData.getWarehouse(location);
+            if (warehouse != null) {
+                ArrayList<FurnitureItem> items = warehouse.getInventory();
+                for (FurnitureItem item : items) {
+                    double originalPrice = item.getPrice();
+                    double discountedPrice = originalPrice * (1 - discountPercentage / 100);
+                    item.setPrice((int) discountedPrice);
+                }
+            }
+        }
+
+        public void FindItemById ( int id){
+
+        }
     }
 
-    public void removeWarehouse(String location){
-        WarehouseData.removeWarehouse(location);
-    }
-
-    public void addMember(Member member){
-        MembersData.addMember(member);
-}
-    public void addWarehouse(Warehouse warehouse){
-        WarehouseData.addWarehouse(warehouse);
-    }
-
-    public void applyDiscount(String location, double discountPercentage){
-//        Warehouse warehouse = WarehouseData.getWarehouse(location);
-//        if (warehouse != null) {
-//            ArrayList<FurnitureItem> items = warehouse.getAllItems();
-//            for (FurnitureItem item : items) {
-//                double originalPrice = item.getPrice();
-//                double discountedPrice = originalPrice * (1 - discountPercentage / 100);
-//                item.setPrice(discountedPrice);
-//            }
-//        }
-    }
-
-    public void FindItemById(int id){
-        
-    }
-}
 

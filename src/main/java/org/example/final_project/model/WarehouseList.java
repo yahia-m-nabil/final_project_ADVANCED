@@ -39,4 +39,13 @@ public class WarehouseList {
         return null;
     }
 
+    public void getAllItems() {//get all inventory from all warehouses
+        for (Warehouse warehouse : warehouses) {
+            ArrayList<FurnitureItem> inventory = warehouse.getInventory();
+            for (FurnitureItem item : inventory) {
+                //item.displayInfo();
+            }
+        }
+
+    }
 }
