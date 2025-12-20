@@ -1,5 +1,7 @@
 package main.java.org.example.final_project.model;
 
+import java.util.ArrayList;
+
 public class Admin extends Person {
     private MembersList MembersData;
     private WarehouseList WarehouseData;
