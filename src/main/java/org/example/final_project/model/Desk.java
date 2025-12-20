@@ -1,4 +1,4 @@
-package org.example.final_project.model;
+package main.java.org.example.final_project.model;
 
 public class Desk extends FurnitureItem {
     public Desk(int itemID, int quantity, Materials material, Colors color) {

@@ -1,4 +1,4 @@
-package org.example.final_project.model;
+package main.java.org.example.final_project.model;
 
 public class Chair extends FurnitureItem {
 

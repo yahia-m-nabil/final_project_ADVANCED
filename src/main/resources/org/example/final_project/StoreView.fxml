@@ -1,62 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.control.Accordion?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.TilePane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.ecommerce.controller.StoreController">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ecommerce.controller.StoreController">
 
     <top>
         <HBox spacing="20" style="-fx-background-color: #333; -fx-padding: 15;">
-            <Label text="FurnitureApp" textFill="WHITE" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="FurnitureApp" textFill="WHITE" />
 
             <HBox HBox.hgrow="ALWAYS" />
 
-            <TextField promptText="Search furniture..." />
+            <TextField promptText="Search furniture..." text="sad" />
             <Button text="Search" />
 
-            <Button text="My Cart" style="-fx-background-color: #f4b400; -fx-text-fill: white;"/>
-            <Button text="Profile"/>
+            <Button style="-fx-background-color: #f4b400; -fx-text-fill: white;" text="My Cart" />
+            <Button text="Profile" />
         </HBox>
     </top>
 
     <left>
         <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #f4f4f4; -fx-min-width: 200;">
-            <Label text="Filters" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Filters" />
 
             <Accordion>
                 <panes>
-                    <TitledPane text="Category" expanded="true">
+                    <TitledPane expanded="true" text="Category">
                         <VBox spacing="5">
-                            <CheckBox text="Chairs"/>
-                            <CheckBox text="Desks"/>
-                            <CheckBox text="Tables"/>
+                            <CheckBox text="Chairs" />
+                            <CheckBox text="Desks" />
+                            <CheckBox text="Tables" />
                         </VBox>
                     </TitledPane>
 
-                    <TitledPane text="Material" expanded="true">
+                    <TitledPane expanded="true" text="Material">
                         <VBox spacing="5">
-                            <CheckBox text="Wood"/>
-                            <CheckBox text="Metal"/>
-                            <CheckBox text="Plastic"/>
+                            <CheckBox text="Wood" />
+                            <CheckBox text="Metal" />
+                            <CheckBox text="Plastic" />
                         </VBox>
                     </TitledPane>
 
-                    <TitledPane text="Color" expanded="false">
+                    <TitledPane expanded="false" text="Color">
                         <VBox spacing="5">
-                            <CheckBox text="Brown"/>
-                            <CheckBox text="White"/>
-                            <CheckBox text="Black"/>
+                            <CheckBox text="Brown" />
+                            <CheckBox text="White" />
+                            <CheckBox text="Black" />
                         </VBox>
                     </TitledPane>
                 </panes>
@@ -65,8 +54,8 @@
     </left>
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-            <TilePane fx:id="productGrid" hgap="20" vgap="20" style="-fx-padding: 20;" prefColumns="3">
+        <ScrollPane fitToWidth="true" prefHeight="330.0" prefWidth="390.0" style="-fx-background-color: transparent;">
+            <TilePane fx:id="productGrid" hgap="20" prefColumns="3" style="-fx-padding: 20;" vgap="20">
             </TilePane>
         </ScrollPane>
     </center>

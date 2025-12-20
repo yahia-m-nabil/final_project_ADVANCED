@@ -1,4 +1,4 @@
-package org.example.final_project.model;
+package main.java.org.example.final_project.model;
 
 public final class TableStorage {
     private static final int[][] itemMaterial = {{10,15,20},{15,35,50},{20,55,100}};

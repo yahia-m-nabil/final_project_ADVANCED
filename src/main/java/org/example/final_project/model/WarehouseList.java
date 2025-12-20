@@ -1,4 +1,4 @@
-package org.example.final_project.model;
+package main.java.org.example.final_project.model;
 
 import java.util.ArrayList;
 
@@ -38,4 +38,5 @@ public class WarehouseList {
         }
         return null;
     }
+
 }

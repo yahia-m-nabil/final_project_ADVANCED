@@ -1,4 +1,4 @@
-package org.example.final_project;
+package main.java.org.example.final_project;
 
 import javafx.application.Application;
 import org.example.final_project.model.HelloApplication;

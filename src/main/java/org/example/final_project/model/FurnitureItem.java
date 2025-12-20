@@ -1,4 +1,4 @@
-package org.example.final_project.model;
+package main.java.org.example.final_project.model;
 
 public abstract class FurnitureItem implements Comparable<FurnitureItem> {
 
