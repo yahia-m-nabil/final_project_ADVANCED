@@ -10,7 +10,7 @@
         <HBox spacing="20" style="-fx-background-color: #333; -fx-padding: 15; -fx-alignment: CENTER_LEFT;">
             <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="FurnitureApp | Checkout" textFill="WHITE" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button text="Back to Store" style="-fx-cursor: hand;" />
+            <Button onAction="#goBackToStore" text="Back to Store" style="-fx-cursor: hand;" />
         </HBox>
     </top>
 
@@ -66,7 +66,7 @@
                 </VBox>
 
                 <VBox spacing="10" alignment="CENTER">
-                    <Button fx:id="placeOrderButton" maxWidth="Infinity"
+                    <Button fx:id="placeOrderButton" onAction="#handlePlaceOrder" maxWidth="Infinity"
                             style="-fx-background-color: #f4b400; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 15; -fx-cursor: hand;"
                             text="Confirm &amp; Pay" />
                     <Label text="Secure Transaction Guaranteed" style="-fx-font-size: 11px;" textFill="#4caf50" />

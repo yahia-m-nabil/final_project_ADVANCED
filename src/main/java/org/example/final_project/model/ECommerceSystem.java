@@ -12,35 +12,49 @@ public class ECommerceSystem {
     private ECommerceSystem() {
         this.membersData = new MembersList();
         this.warehouseData = new WarehouseList();
-        this.currentMember = null;  // No one logged in initially
+        this.currentMember = null;
 
-
-        // --- STARTUP DATA INITIALIZATION ---
-
-        // 1. Add Admin (Using the ID, Name, Email)
+        // --- 1. STARTUP MEMBERS ---
         Admin admin = new Admin(99, "System Admin", "admin@system.com");
         admin.setPassword("admin123");
         addMember(admin);
 
-        // 2. Add Users (Customers)
-        // Note: Your User constructor takes (Name, Email, ID)
-        User amr = addUser(1, "Amr Emad", "a");
+        User amr = addUser(1, "Amr Emad", "amr@gmail.com");
         amr.setPassword("123456");
+        amr.setMoney(100000);
 
-        // 3. Add Sellers
-        // Note: Your Seller constructor takes (ID, Name, Email)
-        Seller abdo = addSeller(2, "Abdo", "a");
+        Seller abdo = addSeller(2, "Abdo", "abdo@store.com");
         abdo.setPassword("123456");
 
-        Seller karem = addSeller(3, "El 7ag Karem 3awad", "karem@3awad.com");
+        User karem = addUser(3, "El 7ag Karem 3awad", "karem@3awad.com");
         karem.setPassword("123456");
 
-        // 4. Add Startup Warehouses
-        warehouseData.addWarehouse(new Warehouse("Cairo"));
+        // --- 2. STARTUP WAREHOUSES ---
+        Warehouse cairoWH = new Warehouse("Cairo");
+        warehouseData.addWarehouse(cairoWH);
         warehouseData.addWarehouse(new Warehouse("Alexandria"));
 
-        // ------------------------------------
+        // --- 3. STARTUP PRODUCTS (Admin Initializing Stock) ---
+        // We create every combination of Chair and Table
+        Materials[] materials = {Materials.WOOD, Materials.METAL, Materials.PLASTIC};
+        Colors[] colors = {Colors.BROWN, Colors.WHITE, Colors.BLACK};
 
+        int idCounter = 1000; // Starting ID for products
+
+        for (Materials m : materials) {
+            for (Colors c : colors) {
+                // Create a Chair with this combination
+                // Params: ID, Quantity, Material, Color
+                Chair chair = new Chair(idCounter++, 10, m, c);
+                cairoWH.addItems(chair,chair.getQuantity());
+
+                // Create a Table with this combination
+                Table table = new Table(idCounter++, 5, m, c);
+                cairoWH.addItems(table,table.getQuantity());
+            }
+        }
+
+        System.out.println("System initialized: Members added and 18 startup products stocked in Cairo.");
     }
 
     public static ECommerceSystem getInstance() {
@@ -207,6 +221,31 @@ public class ECommerceSystem {
         if (currentMember instanceof Seller) return "Seller";
         if (currentMember instanceof User) return "User";
         return "Unknown";
+    }
+
+    // ======================== ITEM MANAGEMENT (FACADE) =====================
+
+    /**
+     * Finds a furniture item across all warehouses
+     * Controllers should use this instead of accessing WarehouseList directly
+     */
+    public FurnitureItem findItemById(int itemID) {
+        return warehouseData.findItemAcrossWarehouses(itemID);
+    }
+
+    /**
+     * Finds which warehouse contains a specific item
+     */
+    public Warehouse findWarehouseWithItem(int itemID) {
+        return warehouseData.findWarehouseWithItem(itemID);
+    }
+
+    public ArrayList<FurnitureItem> getAllItems() {
+        ArrayList<FurnitureItem> allItems = new ArrayList<>();
+        for (Warehouse warehouse : warehouseData.getAllWarehouses()) {
+            allItems.addAll(warehouse.getInventory());
+        }
+        return allItems;
     }
 
 }

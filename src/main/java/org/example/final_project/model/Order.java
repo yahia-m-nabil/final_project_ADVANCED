@@ -12,9 +12,9 @@ public class Order {
     private static int nextOrderId = 1000;
     
     private final int orderId;
-    private final int customerId;
+    private  int customerId;
     private OrderStatus status;
-    private final ArrayList<FurnitureItem> items;
+    private  ArrayList<FurnitureItem> items;
     private final LocalDateTime orderDate;
 
     /* ======================== CONSTRUCTOR ===================== */
@@ -47,6 +47,11 @@ public class Order {
         return orderId;
     }
 
+    // Alias for TableView compatibility
+    public int getId() {
+        return orderId;
+    }
+
     public int getCustomerId() {
         return customerId;
     }
@@ -57,6 +62,12 @@ public class Order {
 
     public LocalDateTime getOrderDate() {
         return orderDate;
+    }
+
+    // For TableView - returns formatted date string
+    public String getDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return orderDate.format(formatter);
     }
 
     public ArrayList<FurnitureItem> getItems() {
@@ -83,6 +94,11 @@ public class Order {
             price += item.getTotalPrice();
         }
         return price;
+    }
+
+    // Alias for TableView compatibility
+    public double getTotal() {
+        return (double) getTotalPrice();
     }
 
     public String getFormattedTotalPrice() {

@@ -25,8 +25,13 @@ public class Launcher extends Application {
         FXMLLoader loader = new FXMLLoader(fxmlLocation);
         Parent root = loader.load();
 
-        stage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
         stage.setTitle("Furniture Management System");
+
+        // Set window to maximized or fixed size
+        stage.setMaximized(true);
+
         stage.show();
     }
 }

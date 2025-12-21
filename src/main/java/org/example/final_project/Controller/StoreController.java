@@ -2,22 +2,25 @@ package org.example.final_project.Controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.TilePane;
 import javafx.event.ActionEvent;
 import javafx.stage.Stage;
-import org.example.final_project.model.ECommerceSystem;
+import org.example.final_project.model.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class StoreController {
 
     // --- FXML Injections ---
     @FXML private TextField searchField;
     @FXML private ComboBox<String> sortComboBox;
-    @FXML private ComboBox<String> regionComboBox; // From your previous request
     @FXML private TilePane productGrid;
 
     // Category Checkboxes
@@ -36,83 +39,149 @@ public class StoreController {
     @FXML private CheckBox checkBlack;
 
     /**
-     * This method is automatically called after the fxml file has been loaded.
+     * Initializes the controller. Sets up listeners for all UI controls
+     * so the grid updates automatically when a filter changes.
      */
     @FXML
     public void initialize() {
-        System.out.println("Store GUI Initialized");
-
         // 1. Setup Sorting Listener
-        sortComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                handleSorting(newVal);
-            }
-        });
+        sortComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> loadProducts());
 
-        // 2. Setup Filter Listeners (example for one)
-        checkChairs.selectedProperty().addListener((obs, oldVal, newVal) -> updateFilters());
-        checkDesks.selectedProperty().addListener((obs, oldVal, newVal) -> updateFilters());
-        checkTables.selectedProperty().addListener((obs, oldVal, newVal) -> updateFilters());
+        // 2. Setup Filter Listeners (Reload grid whenever a checkbox is clicked)
+        CheckBox[] allFilters = {
+                checkChairs, checkDesks, checkTables,
+                checkWood, checkMetal, checkPlastic,
+                checkBrown, checkWhite, checkBlack
+        };
+        for (CheckBox cb : allFilters) {
+            cb.selectedProperty().addListener((obs, old, newVal) -> loadProducts());
+        }
 
-        // 3. Initial Load of Products
+        // 3. Initial Load
         loadProducts();
     }
 
-    // --- Placeholder Methods for your Logic ---
+    /**
+     * Fetches items from all warehouses, applies filters/sorting, and populates the TilePane.
+     * Public so it can be called to refresh stock display.
+     */
+    public void loadProducts() {
+        productGrid.getChildren().clear();
 
-    private void loadProducts() {
-        // TODO: Get items from WarehouseList.getAllItems()
-        // TODO: Loop through items and inject ProductCard.fxml into productGrid
-        System.out.println("Loading all products into grid...");
+        // Get all items using ECommerceSystem facade
+        ArrayList<FurnitureItem> allItems = ECommerceSystem.getInstance().getAllItems();
+
+        // Apply Search and Checkbox Filters
+        ArrayList<FurnitureItem> filteredList = allItems.stream()
+                .filter(this::passesSearch)
+                .filter(this::passesFilters)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Apply Sorting
+        applySorting(filteredList);
+
+        // Inject Product Cards into Grid
+        for (FurnitureItem item : filteredList) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/final_project/ProductCard.fxml"));
+                Node card = loader.load();
+
+                // Set data in the card controller
+                ProductCardController cardController = loader.getController();
+                cardController.setData(item);
+
+                productGrid.getChildren().add(card);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    private void handleSorting(String sortType) {
-        // TODO: Integrate with warehouse.sortInventoryByPrice() or sortInventoryByID()
-        System.out.println("Sorting products by: " + sortType);
+    private boolean passesSearch(FurnitureItem item) {
+        String query = searchField.getText().toLowerCase().trim();
+        if (query.isEmpty()) return true;
+        return item.toString().toLowerCase().contains(query);
     }
 
-    private void updateFilters() {
-        // TODO: Filter the list based on which checkboxes are selected
-        System.out.println("Updating product grid based on filters...");
+    private boolean passesFilters(FurnitureItem item) {
+        // Type Filter
+        if (item instanceof Chair && !checkChairs.isSelected()) return false;
+        if (item instanceof Desk && !checkDesks.isSelected()) return false;
+        if (item instanceof Table && !checkTables.isSelected()) return false;
+
+        // Material Filter
+        if (item.getMaterial() == Materials.WOOD && !checkWood.isSelected()) return false;
+        if (item.getMaterial() == Materials.METAL && !checkMetal.isSelected()) return false;
+        if (item.getMaterial() == Materials.PLASTIC && !checkPlastic.isSelected()) return false;
+
+        // Color Filter
+        if (item.getColor() == Colors.BROWN && !checkBrown.isSelected()) return false;
+        if (item.getColor() == Colors.WHITE && !checkWhite.isSelected()) return false;
+        if (item.getColor() == Colors.BLACK && !checkBlack.isSelected()) return false;
+
+        return true;
+    }
+
+    private void applySorting(ArrayList<FurnitureItem> list) {
+        String sortType = sortComboBox.getValue();
+        if (sortType == null) return;
+
+        switch (sortType) {
+            case "Price: Low to High":
+                list.sort(Comparator.comparingInt(FurnitureItem::getPrice));
+                break;
+            case "Price: High to Low":
+                list.sort((a, b) -> Integer.compare(b.getPrice(), a.getPrice()));
+                break;
+            case "Product ID":
+                list.sort(Comparator.comparingInt(FurnitureItem::getItemID));
+                break;
+        }
     }
 
     @FXML
     private void handleSearch() {
-        String query = searchField.getText();
-        System.out.println("Searching for: " + query);
-        // TODO: Filter warehouse list by name/ID
+        loadProducts(); // Re-runs loadProducts which checks searchField
     }
 
     @FXML
     private void goToCart(ActionEvent event) {
-        navigateTo("/org/example/final_project/checkout.fxml", "Cart/Checkout", event);
+        switchScene(event, "/org/example/final_project/checkout.fxml", "My Cart");
     }
 
     @FXML
     private void goToProfile(ActionEvent event) {
-        navigateTo("/org/example/final_project/customerPage.fxml", "Customer Profile", event);
+        switchScene(event, "/org/example/final_project/customerPage.fxml", "My Profile");
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        ECommerceSystem system = ECommerceSystem.getInstance();
-        system.clearSession();
-        navigateTo("/org/example/final_project/Login.fxml", "Login", event);
-        System.out.println("User logged out successfully.");
+        switchScene(event, "/org/example/final_project/Login.fxml", "Login");
     }
 
-    /**
-     * Helper method to navigate to different scenes.
-     */
-    private void navigateTo(String fxmlPath, String pageName, ActionEvent event) {
+    private void switchScene(ActionEvent event, String fxmlPath, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Preserve window dimensions
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+            boolean maximized = stage.isMaximized();
+
             stage.setScene(new Scene(root));
-            System.out.println("Navigating to " + pageName + "...");
+            stage.setTitle("FurnitureApp - " + title);
+
+            // Restore window dimensions
+            if (maximized) {
+                stage.setMaximized(true);
+            } else {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
+
+            stage.show();
         } catch (IOException e) {
-            System.err.println("Error loading " + pageName + ": " + e.getMessage());
             e.printStackTrace();
         }
     }

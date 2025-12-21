@@ -89,8 +89,22 @@ public class SignupController {
             // 2. Get the current Stage (window) using any UI element (like emailField)
             Stage stage = (Stage) emailField.getScene().getWindow();
 
+            // Preserve window dimensions
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+            boolean maximized = stage.isMaximized();
+
             // 3. Set the new scene
             stage.setScene(new Scene(root));
+
+            // Restore window dimensions
+            if (maximized) {
+                stage.setMaximized(true);
+            } else {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
+
             stage.show();
         } catch (IOException e) {
             showError("Navigation Error", "Could not open signup page: " + e.getMessage());

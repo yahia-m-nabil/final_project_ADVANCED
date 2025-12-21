@@ -74,6 +74,13 @@ public abstract class FurnitureItem implements Comparable<FurnitureItem> {
         return this.getClass().getSimpleName();
     }
 
+    public String getName() {
+        // Returns a readable name like "Brown Wood Chair" or "White Metal Table"
+        return color.name().charAt(0) + color.name().substring(1).toLowerCase() + " " +
+               material.name().charAt(0) + material.name().substring(1).toLowerCase() + " " +
+               getType();
+    }
+
     public int getTotalPrice() {
         return price * quantity;
     }

@@ -3,15 +3,26 @@ package org.example.final_project.Controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
+import org.example.final_project.model.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class CheckoutController {
 
     // --- Table Injections ---
-    @FXML private TableView<?> checkoutTable; // Replace ? with FurnitureItem
-    @FXML private TableColumn<?, String> colItem;
-    @FXML private TableColumn<?, Integer> colQty;
-    @FXML private TableColumn<?, Double> colPrice;
-    @FXML private TableColumn<?, Double> colSubtotal;
+    @FXML private TableView<FurnitureItem> checkoutTable;
+    @FXML private TableColumn<FurnitureItem, String> colItem;
+    @FXML private TableColumn<FurnitureItem, Integer> colQty;
+    @FXML private TableColumn<FurnitureItem, Double> colPrice;
+    @FXML private TableColumn<FurnitureItem, Double> colSubtotal;
 
     // --- Summary Labels ---
     @FXML private Label itemsTotalLabel;
@@ -33,6 +44,7 @@ public class CheckoutController {
 
         setupColumns();
         populateWarehouseList();
+        loadCartItems();
         calculateTotals();
     }
 
@@ -40,56 +52,179 @@ public class CheckoutController {
      * Map table columns to FurnitureItem properties.
      */
     private void setupColumns() {
-        // TODO: colItem.setCellValueFactory(new PropertyValueFactory<>("name"));
-        // TODO: colSubtotal logic (Price * Quantity)
+        colItem.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colQty.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        colPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        // Custom cell value factory for subtotal (price * quantity)
+        colSubtotal.setCellValueFactory(cellData -> {
+            FurnitureItem item = cellData.getValue();
+            double subtotal = item.getPrice() * item.getQuantity();
+            return new javafx.beans.property.SimpleDoubleProperty(subtotal).asObject();
+        });
     }
 
-    /**
-     * Load warehouse names from your WarehouseList.
-     */
     private void populateWarehouseList() {
-        // TODO: warehouseSelector.setItems( WarehouseList.getWarehouseNames() );
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        ArrayList<Warehouse> warehouses = system.getAllWarehouses();
+
+        ObservableList<String> warehouseNames = FXCollections.observableArrayList();
+        for (Warehouse warehouse : warehouses) {
+            warehouseNames.add(warehouse.getLocation());
+        }
+
+        warehouseSelector.setItems(warehouseNames);
+
+        // Select first warehouse by default if available
+        if (!warehouseNames.isEmpty()) {
+            warehouseSelector.getSelectionModel().selectFirst();
+        }
     }
 
-    /**
-     * Math logic for order summary.
-     */
+
+    private void loadCartItems() {
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        User currentUser = system.getCurrentUser();
+
+        if (currentUser != null) {
+            ArrayList<FurnitureItem> wishlist = currentUser.getWishlist();
+            ObservableList<FurnitureItem> cartItems = FXCollections.observableArrayList(wishlist);
+            checkoutTable.setItems(cartItems);
+            System.out.println("Loaded " + wishlist.size() + " items into cart");
+        } else {
+            System.out.println("No user logged in - cart is empty");
+        }
+    }
+
+
     private void calculateTotals() {
-        // TODO: Loop through items in user's wishlist/cart
-        // double sub = 0;
-        // for (FurnitureItem item : cart) sub += item.getPrice() * item.getQuantity();
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        User currentUser = system.getCurrentUser();
 
-        // double tax = sub * 0.15;
-        // this.totalAmount = sub + tax;
+        if (currentUser != null) {
+            // Use User model methods for calculations (DRY principle)
+            double subtotal = currentUser.getWishlistSubtotal();
+            double tax = currentUser.getWishlistTax();
+            this.totalAmount = currentUser.calculateMoney();
 
-        // itemsTotalLabel.setText(String.format("$%.2f", sub));
-        // taxLabel.setText(String.format("$%.2f", tax));
-        // finalTotalLabel.setText(String.format("$%.2f", totalAmount));
+            itemsTotalLabel.setText(String.format("$%.2f", subtotal));
+            taxLabel.setText(String.format("$%.2f", tax));
+            finalTotalLabel.setText(String.format("$%.2f", totalAmount));
+        } else {
+            itemsTotalLabel.setText("$0.00");
+            taxLabel.setText("$0.00");
+            finalTotalLabel.setText("$0.00");
+        }
     }
 
-    /**
-     * Handles the 'Confirm & Pay' logic.
-     */
+
     @FXML
     private void handlePlaceOrder(ActionEvent event) {
-        String selectedWH = warehouseSelector.getValue();
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        User currentUser = system.getCurrentUser();
 
+        if (currentUser == null) {
+            showAlert("Login Required", "Please log in to place an order.");
+            return;
+        }
+
+        String selectedWH = warehouseSelector.getValue();
         if (selectedWH == null) {
             showAlert("Selection Required", "Please choose a pickup warehouse.");
             return;
         }
 
-        System.out.println("Processing payment for: " + finalTotalLabel.getText());
+        ArrayList<FurnitureItem> wishlist = currentUser.getWishlist();
+        if (wishlist.isEmpty()) {
+            showAlert("Empty Cart", "Your cart is empty. Add items before checkout.");
+            return;
+        }
 
-        /* TODO: Logic flow:
-           1. Check if User.getMoney() >= totalAmount
-           2. Deduct money: user.setMoney(user.getMoney() - totalAmount)
-           3. Deduct stock: warehouse.removeFromInventory(...)
-           4. Create new Order and add to user.getOrderHistory()
-           5. Clear user.getWishlist()
-        */
+        // Check if user has enough money
+        if (currentUser.getMoney() < totalAmount) {
+            showAlert("Insufficient Funds",
+                String.format("You need $%.2f but only have $%d. Please add funds to your account.",
+                totalAmount, currentUser.getMoney()));
+            return;
+        }
 
-        showSuccess("Order Placed", "Your furniture is ready for pickup at " + selectedWH);
+        // Get the selected warehouse
+        Warehouse warehouse = system.findWarehouseByLocation(selectedWH);
+        if (warehouse == null) {
+            showAlert("Error", "Selected warehouse not found.");
+            return;
+        }
+
+        // Check stock availability
+        for (FurnitureItem item : wishlist) {
+            if (!warehouse.hasEnoughStock(item.getItemID(), item.getQuantity())) {
+                showAlert("Insufficient Stock",
+                    String.format("Not enough stock for %s at %s warehouse.", item.getName(), selectedWH));
+                return;
+            }
+        }
+
+        try {
+            // Perform checkout - this handles everything: deduct money, create order, clear wishlist, remove stock
+            currentUser.checkout(warehouse);
+
+            // Get the newly created order
+            ArrayList<Order> orderHistory = currentUser.getOrderHistory();
+            Order newOrder = orderHistory.get(orderHistory.size() - 1);
+
+            // Show success message
+            showSuccess("Order Placed Successfully",
+                String.format("Your order #%d is ready for pickup at %s.\nTotal paid: $%.2f\nRemaining balance: $%d",
+                newOrder.getOrderId(), selectedWH, totalAmount, currentUser.getMoney()));
+
+            // Navigate back to store after successful order
+            goBackToStore(event);
+
+        } catch (IllegalArgumentException e) {
+            showAlert("Order Error", e.getMessage());
+        } catch (Exception e) {
+            showAlert("Order Error", "An error occurred while processing your order: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Navigate back to the store view.
+     */
+    @FXML
+    private void goBackToStore(ActionEvent event) {
+        navigateTo("/org/example/final_project/StoreView.fxml", "Store", event);
+    }
+
+    /**
+     * Helper method to navigate to different scenes.
+     */
+    private void navigateTo(String fxmlPath, String pageName, ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+            // Preserve window dimensions
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+            boolean maximized = stage.isMaximized();
+
+            stage.setScene(new Scene(root));
+
+            // Restore window dimensions
+            if (maximized) {
+                stage.setMaximized(true);
+            } else {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
+
+            System.out.println("Navigating to " + pageName + "...");
+        } catch (IOException e) {
+            System.err.println("Error loading " + pageName + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String content) {

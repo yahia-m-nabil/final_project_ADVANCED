@@ -1,9 +1,12 @@
 package org.example.final_project.Controller;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.example.final_project.model.*;
 
 public class ProductCardController {
 
@@ -13,29 +16,35 @@ public class ProductCardController {
     @FXML private Label itemColor;
     @FXML private Label itemPrice;
     @FXML private Label discountLabel;
+    @FXML private Label stockLabel;
 
     // Quantity Controls
     @FXML private Button btnMinus;
     @FXML private Button btnPlus;
     @FXML private Label quantityLabel;
 
-    private int currentQuantity = 1;
-    // TODO: Reference to the actual FurnitureItem object this card represents
-    // private FurnitureItem item;
+    // Action Button
+    @FXML private Button btnAddToCart;
 
-    /**
-     * Initializes the card and sets up the plus/minus button logic.
-     */
+    private int currentQuantity = 1;
+    private int itemID;
+    private boolean isProcessing = false; // Prevent double-click
+
     @FXML
     public void initialize() {
-        // Increment Quantity
-        btnPlus.setOnAction(event -> {
-            currentQuantity++;
-            updateQuantityDisplay();
+        // Increment Quantity (with stock limit check)
+        btnPlus.setOnAction(e -> {
+            FurnitureItem item = ECommerceSystem.getInstance().findItemById(itemID);
+            if (item != null && currentQuantity < item.getQuantity()) {
+                currentQuantity++;
+                updateQuantityDisplay();
+            } else if (item != null) {
+                showAlert("Stock Limit", "Only " + item.getQuantity() + " items available in stock.");
+            }
         });
 
         // Decrement Quantity (Minimum of 1)
-        btnMinus.setOnAction(event -> {
+        btnMinus.setOnAction(e -> {
             if (currentQuantity > 1) {
                 currentQuantity--;
                 updateQuantityDisplay();
@@ -43,40 +52,121 @@ public class ProductCardController {
         });
     }
 
-    /**
-     * Updates the label in the GUI
-     */
     private void updateQuantityDisplay() {
         quantityLabel.setText(String.valueOf(currentQuantity));
     }
 
-    /**
-     * Logic for the "Add to Cart" button
-     */
     @FXML
     private void handleAddToCart() {
-        System.out.println("Adding " + currentQuantity + " of " + itemName.getText() + " to cart.");
-        // TODO: Call currentCustomer.getWishlist().add(item);
-        // Note: In your logic, Cart and Wishlist share similar list behaviors.
+        // Prevent double-clicking
+        if (isProcessing) {
+            return;
+        }
+        isProcessing = true;
+
+        // Disable button to prevent rapid clicking
+        if (btnAddToCart != null) btnAddToCart.setDisable(true);
+
+        try {
+            ECommerceSystem system = ECommerceSystem.getInstance();
+            User currentUser = system.getCurrentUser();
+
+            if (currentUser == null) {
+                showAlert("Login Required", "Please log in to add items to cart.");
+                return;
+            }
+
+            FurnitureItem item = system.findItemById(itemID);
+            if (item == null) {
+                showAlert("Error", "Item not found in inventory.");
+                return;
+            }
+
+            // Validate stock availability
+            if (currentQuantity > item.getQuantity()) {
+                showAlert("Insufficient Stock",
+                    "Only " + item.getQuantity() + " items available. You requested " + currentQuantity + ".");
+                return;
+            }
+
+            // Create a copy and add to cart
+            FurnitureItem itemToAdd = item.createCopy(currentQuantity);
+            currentUser.addToWishlist(itemToAdd);
+
+            // Reset quantity to 1 after successful add
+            currentQuantity = 1;
+            updateQuantityDisplay();
+
+            showAlert("Success", "Added to cart!");
+            System.out.println("Added to cart. Stock validated at checkout.");
+
+        } catch (Exception e) {
+            showAlert("Error", "Failed to add item to cart: " + e.getMessage());
+        } finally {
+            // Re-enable button after processing
+            isProcessing = false;
+            if (btnAddToCart != null) btnAddToCart.setDisable(false);
+        }
     }
 
-    /**
-     * Logic for the "Add to Wishlist" button
-     */
-    @FXML
-    private void handleAddToWishlist() {
-        System.out.println("Item saved to wishlist: " + itemName.getText());
-        // TODO: Persist this item to the database/MembersList for the user
+    public void setData(FurnitureItem furnitureItem) {
+        this.itemID = furnitureItem.getItemID();
+
+        itemName.setText(furnitureItem.getName());
+        itemMaterial.setText(furnitureItem.getMaterial().toString());
+        itemColor.setText(furnitureItem.getColor().toString());
+        itemPrice.setText(String.format("$%d", furnitureItem.getPrice()));
+
+        // Display stock availability
+        int stock = furnitureItem.getQuantity();
+        stockLabel.setText(stock + " in stock");
+        if (stock == 0) {
+            stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: red; -fx-font-weight: bold;");
+            stockLabel.setText("Out of Stock");
+        } else if (stock < 5) {
+            stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: orange; -fx-font-weight: bold;");
+        } else {
+            stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+        }
+
+        // Show discount label only for discountable items
+        if (furnitureItem instanceof Discountable) {
+            discountLabel.setVisible(true);
+        }
+
+        loadImage(furnitureItem);
     }
 
-    /**
-     * Method to be called by the StoreController to set up the card's data
-     */
-    public void setData(String name, String material, String color, double price) {
-        itemName.setText(name);
-        itemMaterial.setText(material);
-        itemColor.setText(color);
-        itemPrice.setText(String.format("$%.2f", price));
-        // TODO: load image using itemImage.setImage(new Image(path));
+    private void loadImage(FurnitureItem item) {
+        try {
+            String color = item.getColor().toString();
+            String material = item.getMaterial().toString();
+            String type = item.getType();
+
+            String colorFormatted = color.charAt(0) + color.substring(1).toLowerCase();
+            String materialFormatted = material.charAt(0) + material.substring(1).toLowerCase();
+
+            String extension = ".jpg";
+            if (material.equals("PLASTIC") && type.equals("Chair")) {
+                extension = ".jpeg";
+            }
+
+            String imageName = colorFormatted + materialFormatted + type + extension;
+            String imagePath = "/org/example/final_project/images/" + imageName;
+
+            Image image = new Image(getClass().getResourceAsStream(imagePath));
+            itemImage.setImage(image);
+        } catch (Exception e) {
+            System.err.println("Failed to load image for item: " + item.getName() + " - " + e.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
+

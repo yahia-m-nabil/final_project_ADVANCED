@@ -155,6 +155,7 @@ public class User extends Member {
         return !wishlist.isEmpty() && getMoney() >= calculateMoney();
     }
 
+
     /* ======================== REFUND OPERATIONS ===================== */
 
     public void refundOrder(int orderId, Warehouse warehouse) {
