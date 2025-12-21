@@ -5,96 +5,57 @@ import java.util.ArrayList;
 
 public class User extends Member {
 
-    private ArrayList<FurnitureItem> wishlist;
-    private ArrayList<Order> orderHistory;
+    /* ======================== FIELDS ===================== */
 
-    /* ======================== constructor  functions ===================== */
+    private final ArrayList<FurnitureItem> wishlist;
+    private final ArrayList<Order> orderHistory;
+    private static final int CUSTOMER_TAX_PERCENTAGE = 15;
+    private static final int REFUND_PERIOD_DAYS = 30;
 
-    public User(String name, String email, int memberid ) {
-        super(memberid, name, email);
+    /* ======================== CONSTRUCTOR ===================== */
+
+    public User(String name, String email, int memberId) {
+        super(memberId, name, email);
         this.wishlist = new ArrayList<>();
         this.orderHistory = new ArrayList<>();
     }
 
-    /* ======================== checkout & refund functions ===================== */
-
-    public void Checkout(Warehouse warehouse){
-        int totalPrice = CalculateMoney();
-        if (totalPrice > getMoney()) {
-            System.out.println("Insufficient funds to complete the purchase.");
-            return;
-        }
-
-        // Deduct the total price from user's money
-        setMoney(getMoney()-totalPrice);
-
-        // Create a new order
-        FurnitureItem[] itemsArray = wishlist.toArray(new FurnitureItem[0]);
-        Order newOrder = new Order(Order.generateOrderId(), itemsArray);
-        addToOrderHistory(newOrder);
-
-        // Remove items from warehouse based on quantities
-        for (FurnitureItem item : wishlist) {
-            warehouse.removeItems(item.getItemID(), item.getQuantity());
-        }
-
-        // Clear the wishlist after checkout
-        //warehouse.removeitems(itemsArray); //removes the items from warehouse
-        wishlist.clear();
-
-        //will be replaced with GUI
-        //System.out.println("Checkout successful! Order ID: " + newOrder.getOrderId()); =========================================================================
-
-    }
-
-    public void RefundOrder(int orderId, Warehouse warehouse) {
-        if (orderHistory.isEmpty()){
-            return;
-        }
-        Order ordertorefund = null;
-        for(Order z : orderHistory){
-            if (z.getOrderid() == orderId) {
-                ordertorefund = z;
-                break;
-            }
-        }
-        if (ordertorefund == null){
-            return;
-        }
-        if (LocalDate.now().isAfter(ordertorefund.getDate().toLocalDate().plusDays(30))) {
-            //will be replaced with GUI
-            //System.out.println("Refund period has expired for this order."); ==============================================================================
-            return;
-        }
-        int refundAmount = ordertorefund.GetAllItemsPrice();
-        setMoney(getMoney()+refundAmount);
-        
-        // Return items to warehouse
-        ArrayList<FurnitureItem> refundedItems = ordertorefund.RefundItems();
-        for (FurnitureItem item : refundedItems) {
-            warehouse.addItems(item, item.getQuantity());
-        }
-        
-        //will be replaced with GUI
-        //System.out.println("Order refunded successfully! Refund Amount: " + refundAmount); =========================================================================
-    }
-
-    /* ======================== order functions ===================== */
-
-    public ArrayList<Order> getOrderHistory() {
-        return orderHistory;
-    }
-
-    public void addToOrderHistory(Order new_order){
-        orderHistory.add(new_order);
-    }
-
-    /* ======================== wishlist functions ===================== */
+    /* ======================== GETTERS ===================== */
 
     public ArrayList<FurnitureItem> getWishlist() {
-        return wishlist;
+        return new ArrayList<>(wishlist);
     }
-    
+
+    public ArrayList<Order> getOrderHistory() {
+        return new ArrayList<>(orderHistory);
+    }
+
+    public int getWishlistCount() {
+        return wishlist.size();
+    }
+
+    public int getTotalOrderCount() {
+        return orderHistory.size();
+    }
+
+    public int getWishlistItemQuantity() {
+        int total = 0;
+        for (FurnitureItem item : wishlist) {
+            total += item.getQuantity();
+        }
+        return total;
+    }
+
+    public String getFormattedWishlistTotal() {
+        return "$" + calculateMoney();
+    }
+
+    public String getFormattedTotalSpent() {
+        return "$" + getTotalSpent();
+    }
+
+    /* ======================== SEARCH METHODS ===================== */
+
     public FurnitureItem findItemInWishlist(int itemID) {
         for (FurnitureItem item : wishlist) {
             if (item.getItemID() == itemID) {
@@ -104,54 +65,178 @@ public class User extends Member {
         return null;
     }
 
-    public void addToWishlist(FurnitureItem item) {
-        for (FurnitureItem f : wishlist) {
-            if (f.getItemID() == item.getItemID()) {
-                f.setQuantity(f.getQuantity() + item.getQuantity());
-                return;
+    public boolean hasItemInWishlist(int itemID) {
+        return findItemInWishlist(itemID) != null;
+    }
+
+    public Order findOrderById(int orderId) {
+        for (Order order : orderHistory) {
+            if (order.getOrderId() == orderId) {
+                return order;
             }
         }
-        wishlist.add(item);
+        return null;
     }
 
-    public void removeFromWishlist(int itemid , int quantity) {
-        FurnitureItem item = findItemInWishlist(itemid);
+    /* ======================== WISHLIST MANAGEMENT ===================== */
+
+    public void addToWishlist(FurnitureItem item) {
         if (item == null) {
-            throw new IllegalArgumentException("Item not found in wishlist");
+            throw new IllegalArgumentException("Item cannot be null");
+        }
+        if (item.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Item quantity must be positive");
+        }
+
+        FurnitureItem existing = findItemInWishlist(item.getItemID());
+        if (existing != null) {
+            existing.addQuantity(item.getQuantity());
+        } else {
+            wishlist.add(item);
+        }
+    }
+
+    public void removeFromWishlist(int itemId, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity to remove must be positive");
+        }
+
+        FurnitureItem item = findItemInWishlist(itemId);
+        if (item == null) {
+            throw new IllegalArgumentException("Item ID " + itemId + " not found in wishlist");
         }
         if (item.getQuantity() < quantity) {
-            throw new IllegalArgumentException("Insufficient quantity in wishlist");
+            throw new IllegalArgumentException("Insufficient quantity in wishlist. Available: " + item.getQuantity());
         }
-        
-        int newQuantity = item.getQuantity() - quantity;
-        if (newQuantity == 0) {
+
+        item.reduceQuantity(quantity);
+        if (item.getQuantity() == 0) {
             wishlist.remove(item);
-        } else {
-            item.setQuantity(newQuantity);
         }
     }
 
-    /* ======================== money functions ===================== */
-
-    public void addMoney(int amount ) {
-        setMoney(getMoney()+amount);
+    public void clearWishlist() {
+        wishlist.clear();
     }
+
+    public boolean hasWishlistItems() {
+        return !wishlist.isEmpty();
+    }
+
+    /* ======================== CHECKOUT OPERATIONS ===================== */
+
+    public void checkout(Warehouse warehouse) {
+        if (warehouse == null) {
+            throw new IllegalArgumentException("Warehouse cannot be null");
+        }
+        if (wishlist.isEmpty()) {
+            throw new IllegalArgumentException("Wishlist is empty. Add items before checkout");
+        }
+
+        int totalPrice = calculateMoney();
+        if (totalPrice > getMoney()) {
+            throw new IllegalArgumentException("Insufficient funds. Required: $" + totalPrice + ", Available: $" + getMoney());
+        }
+
+        deductMoney(totalPrice);
+
+        FurnitureItem[] itemsArray = wishlist.toArray(new FurnitureItem[0]);
+        Order newOrder = new Order(getMemberId(), itemsArray);
+        orderHistory.add(newOrder);
+
+        for (FurnitureItem item : wishlist) {
+            warehouse.removeItems(item.getItemID(), item.getQuantity());
+        }
+
+        wishlist.clear();
+    }
+
+    public boolean canCheckout() {
+        return !wishlist.isEmpty() && getMoney() >= calculateMoney();
+    }
+
+    /* ======================== REFUND OPERATIONS ===================== */
+
+    public void refundOrder(int orderId, Warehouse warehouse) {
+        if (warehouse == null) {
+            throw new IllegalArgumentException("Warehouse cannot be null");
+        }
+        if (orderHistory.isEmpty()) {
+            throw new IllegalArgumentException("No orders to refund");
+        }
+
+        Order orderToRefund = findOrderById(orderId);
+        if (orderToRefund == null) {
+            throw new IllegalArgumentException("Order ID " + orderId + " not found");
+        }
+
+        if (orderToRefund.getStatus() == OrderStatus.REFUNDED) {
+            throw new IllegalArgumentException("Order already refunded");
+        }
+
+        LocalDate refundDeadline = orderToRefund.getOrderDate().toLocalDate().plusDays(REFUND_PERIOD_DAYS);
+        if (LocalDate.now().isAfter(refundDeadline)) {
+            throw new IllegalArgumentException("Refund period expired. Must refund within " + REFUND_PERIOD_DAYS + " days");
+        }
+
+        int refundAmount = orderToRefund.getTotalPrice();
+        addMoney(refundAmount);
+
+        ArrayList<FurnitureItem> refundedItems = orderToRefund.refundOrder();
+        for (FurnitureItem item : refundedItems) {
+            warehouse.addItems(item, item.getQuantity());
+        }
+    }
+
+    public boolean canRefundOrder(int orderId) {
+        Order order = findOrderById(orderId);
+        if (order == null || order.getStatus() == OrderStatus.REFUNDED) {
+            return false;
+        }
+        LocalDate refundDeadline = order.getOrderDate().toLocalDate().plusDays(REFUND_PERIOD_DAYS);
+        return !LocalDate.now().isAfter(refundDeadline);
+    }
+
+    /* ======================== FINANCIAL METHODS ===================== */
 
     @Override
-    public int CalculateMoney() {
+    public int calculateMoney() {
+        return getWishlistSubtotal() + getWishlistTax();
+    }
+
+    public int getWishlistSubtotal() {
         int total = 0;
-        int CustomerTax = 15; // 15% tax
         for (FurnitureItem item : wishlist) {
-            total += item.getPrice() * item.getQuantity();
+            total += item.getTotalPrice();
         }
-        return (total + (total * CustomerTax / 100));
+        return total;
     }
 
-    public void ReturnMoney(int amount) throws InvalidAmountException {
-        if(amount > getMoney()){
-            throw new InvalidAmountException("trying to withdraw more than whats currently available in the account");
-        }
-        setMoney(getMoney()-amount);
+    public int getWishlistTax() {
+        return (getWishlistSubtotal() * CUSTOMER_TAX_PERCENTAGE) / 100;
     }
 
+    public int getTotalSpent() {
+        int total = 0;
+        for (Order order : orderHistory) {
+            if (order.getStatus() != OrderStatus.REFUNDED) {
+                total += order.getTotalPrice();
+            }
+        }
+        return total;
+    }
+
+    /* ======================== OBJECT METHODS ===================== */
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "ID=" + getMemberId() +
+                ", Name='" + getName() + '\'' +
+                ", Email='" + getEmail() + '\'' +
+                ", Money=$" + getMoney() +
+                ", Wishlist=" + getWishlistCount() + " items" +
+                ", Orders=" + getTotalOrderCount() +
+                '}';
+    }
 }
