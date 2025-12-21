@@ -14,7 +14,6 @@ import org.example.final_project.model.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 public class StoreController {
 
@@ -71,11 +70,13 @@ public class StoreController {
         // Get all items using ECommerceSystem facade
         ArrayList<FurnitureItem> allItems = ECommerceSystem.getInstance().getAllItems();
 
-        // Apply Search and Checkbox Filters
-        ArrayList<FurnitureItem> filteredList = allItems.stream()
-                .filter(this::passesSearch)
-                .filter(this::passesFilters)
-                .collect(Collectors.toCollection(ArrayList::new));
+        // Apply Search and Checkbox Filters (using simple loops - KISS principle)
+        ArrayList<FurnitureItem> filteredList = new ArrayList<>();
+        for (FurnitureItem item : allItems) {
+            if (passesSearch(item) && passesFilters(item)) {
+                filteredList.add(item);
+            }
+        }
 
         // Apply Sorting
         applySorting(filteredList);

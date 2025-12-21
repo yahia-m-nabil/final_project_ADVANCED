@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
 import javafx.stage.Stage;
+import org.example.final_project.model.*;
 
 import java.io.IOException;
 
@@ -47,33 +48,57 @@ public class SignupController {
      */
     @FXML
     private void handleSignup(ActionEvent event) {
-        String name = nameField.getText();
-        String email = emailField.getText();
+        String name = nameField.getText().trim();
+        String email = emailField.getText().trim();
         String password = passwordField.getText();
 
-        // Determine selected role
-        String role = "Customer";
-        if (roleSeller.isSelected()) {
-            role = "Seller";
-        }
-
-        // --- Logic Placeholders ---
-
+        // Validate inputs
         if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Registration Error", "Please fill in all fields.");
             return;
         }
 
-        System.out.println("Attempting to register " + role + ": " + name + " (" + email + ")");
+        // Get the ECommerceSystem instance
+        ECommerceSystem system = ECommerceSystem.getInstance();
 
-        // TODO: Call your Authentication class or MembersList
-        // Example:
-        // boolean success = membersList.register(name, email, password, role);
+        // Check if email already exists
+        if (system.findMemberByEmail(email) != null) {
+            showAlert(Alert.AlertType.ERROR, "Registration Error", "An account with this email already exists.");
+            return;
+        }
 
-        // if (success) {
-        //    showAlert(Alert.AlertType.INFORMATION, "Success", "Account created successfully!");
-        //    navigateToLogin();
-        // }
+        try {
+            // Generate a unique ID (using total member count + 100 to avoid conflicts with startup data)
+            int newId = system.getAllMembers().size() + 100;
+
+            // Ensure the ID is unique
+            while (system.findMemberById(newId) != null) {
+                newId++;
+            }
+
+            // Create the member based on selected role
+            Member newMember;
+            if (roleSeller.isSelected()) {
+                newMember = system.signupSeller(name, email, password, newId);
+                System.out.println("Seller registered successfully: " + name + " (ID: " + newId + ")");
+            } else {
+                newMember = system.signupUser(name, email, password, newId);
+                System.out.println("User registered successfully: " + name + " (ID: " + newId + ")");
+            }
+
+            // Show success message
+            showAlert(Alert.AlertType.INFORMATION, "Success",
+                    "Account created successfully!\nYour ID is: " + newId + "\nPlease use your email to login.");
+
+            // Navigate to login page
+            navigateToLogin(event);
+
+        } catch (IllegalArgumentException e) {
+            showAlert(Alert.AlertType.ERROR, "Registration Error", e.getMessage());
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "System Error", "An unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -81,12 +106,8 @@ public class SignupController {
      */
     @FXML
     private void navigateToLogin(ActionEvent event) {
-        // TODO: Load LoginView.fxml and set to Stage
         try {
-            // 1. Load the signup FXML
             Parent root = FXMLLoader.load(getClass().getResource("/org/example/final_project/Login.fxml"));
-
-            // 2. Get the current Stage (window) using any UI element (like emailField)
             Stage stage = (Stage) emailField.getScene().getWindow();
 
             // Preserve window dimensions
@@ -94,7 +115,6 @@ public class SignupController {
             double height = stage.getHeight();
             boolean maximized = stage.isMaximized();
 
-            // 3. Set the new scene
             stage.setScene(new Scene(root));
 
             // Restore window dimensions
@@ -107,7 +127,7 @@ public class SignupController {
 
             stage.show();
         } catch (IOException e) {
-            showError("Navigation Error", "Could not open signup page: " + e.getMessage());
+            showError("Navigation Error", "Could not open login page: " + e.getMessage());
         }
     }
 

@@ -87,7 +87,7 @@ public class LoginController {
     private void redirectUser(Member member, ActionEvent event) {
         String fxmlFile = "";
 
-        if (member instanceof Admin) fxmlFile = "/org/example/final_project/AdminDashboard.fxml";
+        if (member instanceof Admin) fxmlFile = "/org/example/final_project/AdminPage.fxml";
         else if (member instanceof Seller) fxmlFile = "/org/example/final_project/sellerPage.fxml";
         else if (member instanceof User) fxmlFile = "/org/example/final_project/StoreView.fxml";
 

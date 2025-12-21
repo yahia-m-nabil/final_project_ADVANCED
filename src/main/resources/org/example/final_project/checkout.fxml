@@ -23,10 +23,11 @@
 
                 <TableView fx:id="checkoutTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colItem" prefWidth="200" text="Furniture Item" />
-                        <TableColumn fx:id="colQty" prefWidth="80" text="Qty" />
-                        <TableColumn fx:id="colPrice" prefWidth="120" text="Price" />
-                        <TableColumn fx:id="colSubtotal" prefWidth="120" text="Subtotal" />
+                        <TableColumn fx:id="colItem" prefWidth="180" text="Furniture Item" />
+                        <TableColumn fx:id="colQty" prefWidth="60" text="Qty" />
+                        <TableColumn fx:id="colPrice" prefWidth="100" text="Price" />
+                        <TableColumn fx:id="colSubtotal" prefWidth="100" text="Subtotal" />
+                        <TableColumn fx:id="colActions" prefWidth="80" text="Actions" />
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

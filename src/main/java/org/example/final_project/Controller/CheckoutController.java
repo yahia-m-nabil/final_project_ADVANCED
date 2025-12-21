@@ -23,6 +23,7 @@ public class CheckoutController {
     @FXML private TableColumn<FurnitureItem, Integer> colQty;
     @FXML private TableColumn<FurnitureItem, Double> colPrice;
     @FXML private TableColumn<FurnitureItem, Double> colSubtotal;
+    @FXML private TableColumn<FurnitureItem, Void> colActions;
 
     // --- Summary Labels ---
     @FXML private Label itemsTotalLabel;
@@ -61,6 +62,23 @@ public class CheckoutController {
             FurnitureItem item = cellData.getValue();
             double subtotal = item.getPrice() * item.getQuantity();
             return new javafx.beans.property.SimpleDoubleProperty(subtotal).asObject();
+        });
+
+        // Actions column - Remove button
+        colActions.setCellFactory(column -> new TableCell<FurnitureItem, Void>() {
+            private final Button removeBtn = new Button("Remove");
+            {
+                removeBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 5 10;");
+                removeBtn.setOnAction(event -> {
+                    FurnitureItem item = getTableView().getItems().get(getIndex());
+                    handleRemoveFromCart(item);
+                });
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : removeBtn);
+            }
         });
     }
 
@@ -117,6 +135,36 @@ public class CheckoutController {
         }
     }
 
+
+    /**
+     * Removes an item from the cart and refreshes the view.
+     */
+    private void handleRemoveFromCart(FurnitureItem item) {
+        if (item == null) {
+            return;
+        }
+
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        User currentUser = system.getCurrentUser();
+
+        if (currentUser == null) {
+            showAlert("Error", "User not logged in.");
+            return;
+        }
+
+        try {
+            // Remove the entire item from wishlist
+            currentUser.removeFromWishlist(item.getItemID(), item.getQuantity());
+
+            // Reload the cart and recalculate totals
+            loadCartItems();
+            calculateTotals();
+
+            System.out.println("Removed " + item.getName() + " from cart.");
+        } catch (Exception e) {
+            showAlert("Error", "Failed to remove item: " + e.getMessage());
+        }
+    }
 
     @FXML
     private void handlePlaceOrder(ActionEvent event) {

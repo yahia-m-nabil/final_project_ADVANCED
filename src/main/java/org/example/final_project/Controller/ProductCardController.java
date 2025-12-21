@@ -64,9 +64,6 @@ public class ProductCardController {
         }
         isProcessing = true;
 
-        // Disable button to prevent rapid clicking
-        if (btnAddToCart != null) btnAddToCart.setDisable(true);
-
         try {
             ECommerceSystem system = ECommerceSystem.getInstance();
             User currentUser = system.getCurrentUser();
@@ -89,6 +86,25 @@ public class ProductCardController {
                 return;
             }
 
+            // Check if user already has this item in wishlist (cart)
+            FurnitureItem existingInCart = currentUser.findItemInWishlist(itemID);
+            int existingQuantity = (existingInCart != null) ? existingInCart.getQuantity() : 0;
+            int totalQuantity = existingQuantity + currentQuantity;
+
+            // Validate total quantity doesn't exceed stock
+            if (totalQuantity > item.getQuantity()) {
+                if (existingQuantity > 0) {
+                    showAlert("Insufficient Stock",
+                        "You already have " + existingQuantity + " in cart. " +
+                        "Only " + item.getQuantity() + " available in total. " +
+                        "Cannot add " + currentQuantity + " more.");
+                } else {
+                    showAlert("Insufficient Stock",
+                        "Only " + item.getQuantity() + " items available. You requested " + currentQuantity + ".");
+                }
+                return;
+            }
+
             // Create a copy and add to cart
             FurnitureItem itemToAdd = item.createCopy(currentQuantity);
             currentUser.addToWishlist(itemToAdd);
@@ -97,15 +113,15 @@ public class ProductCardController {
             currentQuantity = 1;
             updateQuantityDisplay();
 
-            showAlert("Success", "Added to cart!");
-            System.out.println("Added to cart. Stock validated at checkout.");
+            showAlert("Success", "Added " + itemToAdd.getQuantity() + "x " + itemToAdd.getName() + " to cart!");
+            System.out.println("Added to cart: " + itemToAdd.getName() + " x" + itemToAdd.getQuantity());
 
         } catch (Exception e) {
             showAlert("Error", "Failed to add item to cart: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             // Re-enable button after processing
             isProcessing = false;
-            if (btnAddToCart != null) btnAddToCart.setDisable(false);
         }
     }
 
