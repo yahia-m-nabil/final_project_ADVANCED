@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 public class Chair extends FurnitureItem implements Discountable {
 
@@ -46,3 +46,4 @@ public class Chair extends FurnitureItem implements Discountable {
         return new Chair(this.getItemID(), newQuantity, this.getMaterial(), this.getColor());
     }
 }
+

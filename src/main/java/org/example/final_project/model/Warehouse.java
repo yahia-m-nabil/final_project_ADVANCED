@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -172,3 +172,4 @@ public class Warehouse {
         return location.toLowerCase().hashCode();
     }
 }
+

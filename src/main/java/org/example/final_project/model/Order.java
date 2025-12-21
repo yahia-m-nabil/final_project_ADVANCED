@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -168,3 +168,4 @@ public class Order {
         return Integer.hashCode(orderId);
     }
 }
+

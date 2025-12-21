@@ -1,6 +1,7 @@
 module org.example.final_project {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.desktop;
 
 
     opens org.example.final_project to javafx.fxml;

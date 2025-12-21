@@ -1,17 +1,28 @@
-package main.java.org.example.final_project.Controller;
+package org.example.final_project.Controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class SignupController {
 
     // --- FXML Injections ---
-    @FXML private ToggleButton roleCustomer;
-    @FXML private ToggleButton roleSeller;
-    @FXML private TextField nameField;
-    @FXML private TextField emailField;
-    @FXML private PasswordField passwordField;
+    @FXML
+    private ToggleButton roleCustomer;
+    @FXML
+    private ToggleButton roleSeller;
+    @FXML
+    private TextField nameField;
+    @FXML
+    private TextField emailField;
+    @FXML
+    private PasswordField passwordField;
 
     private ToggleGroup roleGroup;
 
@@ -69,14 +80,35 @@ public class SignupController {
      * Switches back to the Login view
      */
     @FXML
-    private void navigateToLogin() {
+    private void navigateToLogin(ActionEvent event) {
         // TODO: Load LoginView.fxml and set to Stage
-        System.out.println("Navigating back to Login screen...");
+        try {
+            // 1. Load the signup FXML
+            Parent root = FXMLLoader.load(getClass().getResource("/org/example/final_project/Login.fxml"));
+
+            // 2. Get the current Stage (window) using any UI element (like emailField)
+            Stage stage = (Stage) emailField.getScene().getWindow();
+
+            // 3. Set the new scene
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showError("Navigation Error", "Could not open signup page: " + e.getMessage());
+        }
     }
 
     /**
      * Helper method to show messages to the user
      */
+
+    private void showError(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -85,3 +117,6 @@ public class SignupController {
         alert.showAndWait();
     }
 }
+
+
+

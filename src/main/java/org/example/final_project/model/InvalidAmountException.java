@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 public class InvalidAmountException extends RuntimeException {
     
@@ -6,3 +6,4 @@ public class InvalidAmountException extends RuntimeException {
         super(message);
     }
 }
+

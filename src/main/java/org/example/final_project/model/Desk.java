@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 public class Desk extends FurnitureItem {
 
@@ -39,4 +39,5 @@ public class Desk extends FurnitureItem {
         return new Desk(this.getItemID(), newQuantity, this.getMaterial(), this.getColor());
     }
 }
+
 

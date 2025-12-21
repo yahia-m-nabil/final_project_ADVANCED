@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.Controller;
+package org.example.final_project.Controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -8,7 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.Node;
-import main.java.org.example.final_project.model.*; // Importing model classes
+import org.example.final_project.model.*; // Importing model classes
 
 import java.io.IOException;
 
@@ -59,6 +59,7 @@ public class LoginController {
 
             // 3. Verify that the member matches the selected role
             if (isValidRole(member)) {
+                System.out.println("Login successful ");
                 redirectUser(member, event);
             } else {
                 showError("Role Mismatch", "The account found does not match the selected role.");
@@ -105,13 +106,19 @@ public class LoginController {
     }
 
     @FXML
-    private void navigateToSignup() {
+    private void navigateToSignup(ActionEvent event) {
         try {
+            // 1. Load the signup FXML
             Parent root = FXMLLoader.load(getClass().getResource("/org/example/final_project/signup.fxml"));
+
+            // 2. Get the current Stage (window) using any UI element (like emailField)
             Stage stage = (Stage) emailField.getScene().getWindow();
+
+            // 3. Set the new scene
             stage.setScene(new Scene(root));
+            stage.show();
         } catch (IOException e) {
-            showError("Navigation Error", "Could not open signup page.");
+            showError("Navigation Error", "Could not open signup page: " + e.getMessage());
         }
     }
 
@@ -123,3 +130,4 @@ public class LoginController {
         alert.showAndWait();
     }
 }
+

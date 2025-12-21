@@ -1,14 +1,32 @@
-package main.java.org.example.final_project;
+package org.example.final_project;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.net.URL;
 
-public class Launcher {
-    private static Application Application;
+public class Launcher extends Application {
 
     public static void main(String[] args) {
-        Application.launch(args);
+        launch(args);
     }
 
-    private static class HelloApplication {
+    @Override
+    public void start(Stage stage) throws Exception {
+        // Use a leading slash to search from the root of the resources folder
+        URL fxmlLocation = getClass().getResource("/org/example/final_project/Login.fxml");
+
+        if (fxmlLocation == null) {
+            throw new RuntimeException("Fatal Error: Could not find Login.fxml. Ensure it is in src/main/resources/org/example/final_project/");
+        }
+
+        FXMLLoader loader = new FXMLLoader(fxmlLocation);
+        Parent root = loader.load();
+
+        stage.setScene(new Scene(root));
+        stage.setTitle("Furniture Management System");
+        stage.show();
     }
 }

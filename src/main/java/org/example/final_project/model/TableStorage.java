@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 public final class TableStorage {
 
@@ -75,7 +75,7 @@ public final class TableStorage {
     /* ======================== UTILITY METHODS ===================== */
 
     public int getTotalCombinations() {
-        return 3 * 3 * 3; // 3 item types × 3 materials × 3 colors = 27 combinations
+        return 3 * 3 * 3; // 3 item types Ã— 3 materials Ã— 3 colors = 27 combinations
     }
 
     /* ======================== OBJECT METHODS ===================== */
@@ -85,3 +85,4 @@ public final class TableStorage {
         return "TableStorage{Singleton Instance, Total Combinations=" + getTotalCombinations() + "}";
     }
 }
+

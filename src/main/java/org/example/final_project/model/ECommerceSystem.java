@@ -1,16 +1,44 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 import java.util.ArrayList;
 
 public class ECommerceSystem {
     private static ECommerceSystem instance;
     
-    private final MembersList membersData;
-    private final WarehouseList warehouseData;
+    private  MembersList membersData;
+    private  WarehouseList warehouseData;
 
     private ECommerceSystem() {
         this.membersData = new MembersList();
         this.warehouseData = new WarehouseList();
+
+
+        // --- STARTUP DATA INITIALIZATION ---
+
+        // 1. Add Admin (Using the ID, Name, Email)
+        Admin admin = new Admin(99, "System Admin", "admin@system.com");
+        admin.setPassword("admin123");
+        addMember(admin);
+
+        // 2. Add Users (Customers)
+        // Note: Your User constructor takes (Name, Email, ID)
+        User amr = addUser(1, "Amr Emad", "amr@gmail.com");
+        amr.setPassword("123456");
+
+        // 3. Add Sellers
+        // Note: Your Seller constructor takes (ID, Name, Email)
+        Seller abdo = addSeller(2, "Abdo", "a");
+        abdo.setPassword("123456");
+
+        Seller karem = addSeller(3, "El 7ag Karem 3awad", "karem@3awad.com");
+        karem.setPassword("123456");
+
+        // 4. Add Startup Warehouses
+        warehouseData.addWarehouse(new Warehouse("Cairo"));
+        warehouseData.addWarehouse(new Warehouse("Alexandria"));
+
+        // ------------------------------------
+
     }
 
     public static ECommerceSystem getInstance() {
@@ -100,4 +128,29 @@ public class ECommerceSystem {
     public Member findMemberByEmail(String email) {
         return membersData.getMemberByEmail(email);
     }
+
+    public User addUser(int id, String name, String email) {
+
+        if (this.findMemberById(id) != null) {
+            throw new IllegalArgumentException("Member with ID " + id + " already exists");
+        }
+        User user = new User(name, email, id);
+        this.addMember(user); // Use the local instance
+        return user;
+    }
+
+    public Seller addSeller(int id, String name, String email) {
+
+        if (this.findMemberById(id) != null) {
+            throw new IllegalArgumentException("Seller with ID " + id + " already exists");
+        }
+
+        Seller seller = new Seller(id, name, email);
+
+        this.addMember(seller);
+
+        return seller;
+    }
+
 }
+

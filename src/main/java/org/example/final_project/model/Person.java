@@ -1,4 +1,4 @@
-package main.java.org.example.final_project.model;
+package org.example.final_project.model;
 
 public abstract class Person {
 
@@ -88,3 +88,4 @@ public abstract class Person {
         return Integer.hashCode(memberId);
     }
 }
+
