@@ -1,25 +1,52 @@
 package org.example.final_project.model;
 
-public class Chair extends FurnitureItem {
+public class Chair extends FurnitureItem implements Discountable {
+
+    /* ======================== CONSTRUCTOR ===================== */
 
     public Chair(int itemID, int quantity, Materials material, Colors color) {
         super(itemID, quantity, material, color);
-        this.setPrice(calculatePrice(TableStorage.getInstance()));
+        int calculatedPrice = calculatePrice(TableStorage.getInstance());
+        this.setPrice(calculatedPrice);
     }
+
+    /* ======================== PRICE CALCULATION ===================== */
 
     @Override
     public int calculatePrice(TableStorage table) {
-       int initalprice = table.getMaterialPrice(0, this.getMaterial());
-       double percentage = table.getColorPrice(0, this.getColor());
-         return  (int) (initalprice + (initalprice * percentage));
+        int initialPrice = table.getMaterialPrice(0, this.getMaterial());
+        double colorMultiplier = table.getColorMultiplier(this.getMaterial(), this.getColor());
+        return (int) (initialPrice * (1 + colorMultiplier));
     }
 
-//    @Override
-//    public void displayInfo() {
-//        System.out.println("Chair ID: " + this.getItemID() +
-//                ", Material: " + this.getMaterial() +
-//                ", Color: " + this.getColor() +
-//                ", Quantity: " + this.getQuantity() +
-//                ", Price: $" + this.getPrice());
-//    }
+    /* ======================== DISCOUNT MANAGEMENT ===================== */
+
+    @Override
+    public void AddDiscount(double discountPercentage) {
+        if (discountPercentage < 0 || discountPercentage > 1) {
+            throw new IllegalArgumentException("Discount must be between 0 and 1");
+        }
+        int discountedPrice = (int) (this.getPrice() * (1 - discountPercentage));
+        this.setPrice(discountedPrice);
+    }
+
+    /* ======================== STRING REPRESENTATION ===================== */
+
+    @Override
+    public String toString() {
+        return "Chair{" +
+                "ID=" + getItemID() +
+                ", Material=" + getMaterial() +
+                ", Color=" + getColor() +
+                ", Quantity=" + getQuantity() +
+                ", Price=$" + getPrice() +
+                '}';
+    }
+
+    /* ======================== COPY METHOD ===================== */
+
+    @Override
+    public Chair createCopy(int newQuantity) {
+        return new Chair(this.getItemID(), newQuantity, this.getMaterial(), this.getColor());
+    }
 }

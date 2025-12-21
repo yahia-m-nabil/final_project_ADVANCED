@@ -1,26 +1,42 @@
 package org.example.final_project.model;
 
 public class Desk extends FurnitureItem {
+
+    /* ======================== CONSTRUCTOR ===================== */
+
     public Desk(int itemID, int quantity, Materials material, Colors color) {
         super(itemID, quantity, material, color);
-        this.setPrice(calculatePrice(TableStorage.getInstance()));
+        int calculatedPrice = calculatePrice(TableStorage.getInstance());
+        this.setPrice(calculatedPrice);
     }
+
+    /* ======================== PRICE CALCULATION ===================== */
 
     @Override
     public int calculatePrice(TableStorage table) {
-        int initalprice = table.getMaterialPrice(2, this.getMaterial());
-        double percentage = table.getColorPrice(2, this.getColor());
-
-        return  (int) (initalprice + (initalprice * percentage));
+        int initialPrice = table.getMaterialPrice(2, this.getMaterial());
+        double colorMultiplier = table.getColorMultiplier(this.getMaterial(), this.getColor());
+        return (int) (initialPrice * (1 + colorMultiplier));
     }
 
-//    @Override
-//    public void displayInfo() {
-//        System.out.println("Desk ID: " + this.getItemID() +
-//                ", Material: " + this.getMaterial() +
-//                ", Color: " + this.getColor() +
-//                ", Quantity: " + this.getQuantity() +
-//                ", Price: $" + this.getPrice());
-//    }
+    /* ======================== STRING REPRESENTATION ===================== */
+
+    @Override
+    public String toString() {
+        return "Desk{" +
+                "ID=" + getItemID() +
+                ", Material=" + getMaterial() +
+                ", Color=" + getColor() +
+                ", Quantity=" + getQuantity() +
+                ", Price=$" + getPrice() +
+                '}';
+    }
+
+    /* ======================== COPY METHOD ===================== */
+
+    @Override
+    public Desk createCopy(int newQuantity) {
+        return new Desk(this.getItemID(), newQuantity, this.getMaterial(), this.getColor());
+    }
 }
 

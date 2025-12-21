@@ -1,30 +1,58 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package org.example.final_project.model;
 
 import java.util.ArrayList;
 
-public class  Seller extends Member {
-    /*===========================DATA MEMBERS================================ */
-    private ArrayList<FurnitureItem> sellableFurniture;
-    private ArrayList<Order> salesHistory;
-    /* ======================== constructor  functions ===================== */
+public class Seller extends Member {
+
+    /* ======================== FIELDS ===================== */
+
+    private final ArrayList<FurnitureItem> sellableFurniture;
+    private final ArrayList<Order> salesHistory;
+    private static final int PLATFORM_FEE_PERCENTAGE = 5;
+
+    /* ======================== CONSTRUCTOR ===================== */
+
     public Seller(int id, String name, String email) {
         super(id, name, email);
         this.sellableFurniture = new ArrayList<>();
         this.salesHistory = new ArrayList<>();
     }
 
-    /* ======================== getter functions ===================== */
+    /* ======================== GETTERS ===================== */
+
     public ArrayList<FurnitureItem> getSellableFurniture() {
-        return sellableFurniture;
+        return new ArrayList<>(sellableFurniture);
     }
 
     public ArrayList<Order> getSalesHistory() {
-        return salesHistory;
+        return new ArrayList<>(salesHistory);
     }
+
+    public int getInventoryCount() {
+        return sellableFurniture.size();
+    }
+
+    public int getTotalInventoryQuantity() {
+        int total = 0;
+        for (FurnitureItem item : sellableFurniture) {
+            total += item.getQuantity();
+        }
+        return total;
+    }
+
+    public int getTotalSalesCount() {
+        return salesHistory.size();
+    }
+
+    public String getFormattedInventoryValue() {
+        return "$" + calculateMoney();
+    }
+
+    public String getFormattedTotalEarnings() {
+        return "$" + getTotalEarnings();
+    }
+
+    /* ======================== SEARCH METHODS ===================== */
 
     public FurnitureItem findItemInInventory(int itemID) {
         for (FurnitureItem item : sellableFurniture) {
@@ -32,117 +60,200 @@ public class  Seller extends Member {
                 return item;
             }
         }
-        return null; // Not found
+        return null;
     }
 
-    /* ======================== setter functions ===================== */
-    
-    public void setSellableFurniture(ArrayList<FurnitureItem> sellableFurniture) {
-        this.sellableFurniture = sellableFurniture;
+    public boolean hasItemInInventory(int itemID) {
+        return findItemInInventory(itemID) != null;
     }
 
-    public void setSalesHistory(ArrayList<Order> salesHistory) {
-        this.salesHistory = salesHistory;
+    public Order findSaleById(int orderId) {
+        for (Order sale : salesHistory) {
+            if (sale.getOrderId() == orderId) {
+                return sale;
+            }
+        }
+        return null;
     }
 
-    public void addSale(Order sale) {
-        salesHistory.add(sale);
-    }
+    /* ======================== INVENTORY MANAGEMENT ===================== */
 
-    /* ======================== item functions ===================== */
-
-
-    public void createFurnitureItem(FurnitureItem newItem ) {
-        newItem.setPrice(newItem.calculatePrice(TableStorage.getInstance()));    
-        FurnitureItem existing = findItemInInventory(newItem.getItemID());
+    public void createFurnitureItem(int itemId, int quantity, Materials material, Colors color, String type) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+        if (material == null) {
+            throw new IllegalArgumentException("Material cannot be null");
+        }
+        if (color == null) {
+            throw new IllegalArgumentException("Color cannot be null");
+        }
+        if (type == null || type.trim().isEmpty()) {
+            throw new IllegalArgumentException("Type cannot be empty");
+        }
+        
+        FurnitureItem newItem;
+        String itemType = type.trim().toLowerCase();
+        
+        switch (itemType) {
+            case "chair":
+                newItem = new Chair(itemId, quantity, material, color);
+                break;
+            case "table":
+                newItem = new Table(itemId, quantity, material, color);
+                break;
+            case "desk":
+                newItem = new Desk(itemId, quantity, material, color);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid furniture type: " + type + ". Must be 'chair', 'table', or 'desk'");
+        }
+        
+        newItem.setPrice(newItem.calculatePrice(TableStorage.getInstance()));
+        FurnitureItem existing = findItemInInventory(itemId);
+        
         if (existing != null) {
-            existing.setQuantity(existing.getQuantity() + newItem.getQuantity());
+            existing.addQuantity(quantity);
         } else {
             sellableFurniture.add(newItem);
         }
     }
 
-    /* ======================== inventory functions ===================== */
-    
-    public void supplyToWarehouse(Warehouse warehouse, int itemID, int quantity) {
-        FurnitureItem sellerItem = findItemInInventory(itemID);
-        if (sellerItem != null && sellerItem.getQuantity() >= quantity) {
-            // Add to warehouse
-            warehouse.addItems(sellerItem, quantity);
-            
-            // Calculate earnings
-            int earnings = sellerItem.getPrice() * quantity;
-            setMoney(getMoney() + earnings);
-            
-            // Remove from seller's inventory
-            sellerItem.setQuantity(sellerItem.getQuantity() - quantity);
-            if (sellerItem.getQuantity() == 0) {
-                sellableFurniture.remove(sellerItem);
-            }
-            
-            // Create an order for this supply transaction (record keeping)
-            FurnitureItem[] itemsArray = {sellerItem};
-            Order supplyOrder = new Order(Order.generateOrderId(), itemsArray);
-            supplyOrder.setStatus(OrderStatus.DELIVERED);
-            addSale(supplyOrder);
+    public void removeFromInventory(int itemID, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity to remove must be positive");
         }
-        else {
-            throw new IllegalArgumentException("Insufficient quantity in seller's inventory.");
+        
+        FurnitureItem item = findItemInInventory(itemID);
+        if (item == null) {
+            throw new IllegalArgumentException("Item ID " + itemID + " not found in inventory");
+        }
+        if (item.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient quantity. Available: " + item.getQuantity() + ", Requested: " + quantity);
+        }
+        
+        item.reduceQuantity(quantity);
+        if (item.getQuantity() == 0) {
+            sellableFurniture.remove(item);
         }
     }
-    
-    public void supplyAllToWarehouse(Warehouse warehouse) {
-        if (sellableFurniture.isEmpty()) {
-            throw new IllegalArgumentException("No items available to supply to warehouse.");
+
+    public boolean hasInventory() {
+        return !sellableFurniture.isEmpty();
+    }
+
+    public boolean canSupplyToWarehouse(int itemID, int quantity) {
+        FurnitureItem item = findItemInInventory(itemID);
+        return item != null && item.getQuantity() >= quantity;
+    }
+
+    /* ======================== WAREHOUSE SUPPLY OPERATIONS ===================== */
+
+    public void supplyToWarehouse(Warehouse warehouse, int itemID, int quantity) {
+        if (warehouse == null) {
+            throw new IllegalArgumentException("Warehouse cannot be null");
         }
-        setMoney(getMoney() + CalculateMoney());
-        FurnitureItem[] itemsArray = sellableFurniture.toArray(new FurnitureItem[0]);
-        Order supplyOrder = new Order(Order.generateOrderId(), itemsArray);
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+        
+        FurnitureItem sellerItem = findItemInInventory(itemID);
+        if (sellerItem == null) {
+            throw new IllegalArgumentException("Item ID " + itemID + " not found in inventory");
+        }
+        if (sellerItem.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient quantity in inventory. Available: " + sellerItem.getQuantity());
+        }
+        
+        warehouse.addItems(sellerItem, quantity);
+        
+        int grossEarnings = sellerItem.getPrice() * quantity;
+        int platformFee = calculatePlatformFee(grossEarnings);
+        int netEarnings = grossEarnings - platformFee;
+        addMoney(netEarnings);
+        
+        sellerItem.reduceQuantity(quantity);
+        if (sellerItem.getQuantity() == 0) {
+            sellableFurniture.remove(sellerItem);
+        }
+        
+        FurnitureItem suppliedCopy = sellerItem.createCopy(quantity);
+        FurnitureItem[] itemsArray = {suppliedCopy};
+        Order supplyOrder = new Order(getMemberId(), itemsArray);
         supplyOrder.setStatus(OrderStatus.DELIVERED);
-        addSale(supplyOrder);
+        salesHistory.add(supplyOrder);
+    }
+
+    public void supplyAllToWarehouse(Warehouse warehouse) {
+        if (warehouse == null) {
+            throw new IllegalArgumentException("Warehouse cannot be null");
+        }
+        if (sellableFurniture.isEmpty()) {
+            throw new IllegalArgumentException("No items available to supply to warehouse");
+        }
+        
+        int grossEarnings = calculateMoney();
+        int platformFee = calculatePlatformFee(grossEarnings);
+        int netEarnings = grossEarnings - platformFee;
+        
+        ArrayList<FurnitureItem> itemsCopy = new ArrayList<>();
+        for (FurnitureItem item : sellableFurniture) {
+            itemsCopy.add(item.createCopy(item.getQuantity()));
+        }
+        FurnitureItem[] itemsArray = itemsCopy.toArray(new FurnitureItem[0]);
+        
         for (FurnitureItem item : sellableFurniture) {
             warehouse.addItems(item, item.getQuantity());
         }
+        
+        addMoney(netEarnings);
+        
+        Order supplyOrder = new Order(getMemberId(), itemsArray);
+        supplyOrder.setStatus(OrderStatus.DELIVERED);
+        salesHistory.add(supplyOrder);
+        
         sellableFurniture.clear();
     }
 
-    public void removeFromInventory(int itemID, int quantity) {
-        FurnitureItem item = findItemInInventory(itemID);
-        if (item != null) {
-            int newQuantity = item.getQuantity() - quantity;
-            if (newQuantity <= 0) {
-                sellableFurniture.remove(item);
-            } else {
-                item.setQuantity(newQuantity);
-            }
-        }
-    }
+    /* ======================== FINANCIAL METHODS ===================== */
 
-    /* ======================== MONEY functions ===================== */
-    
-    public void addMoney(int amount) {
-        setMoney(getMoney() + amount);
-    }
-    
-    public void withdrawMoney(int amount) throws InvalidAmountException {
-        if (amount > getMoney()) {
-            throw new InvalidAmountException("Trying to withdraw more than what's available in the account");
-        }
-        setMoney(getMoney() - amount);
-    }
-    
     @Override
-    public int CalculateMoney() {
-        // Calculate total inventory value (doesn't change current money)
+    public int calculateMoney() {
         int total = 0;
-        if (sellableFurniture != null) {
-            for (FurnitureItem item : sellableFurniture) {
-                if (item != null) {
-                    total += item.getPrice() * item.getQuantity();
-                }
-            }
+        for (FurnitureItem item : sellableFurniture) {
+            total += item.getTotalPrice();
         }
         return total;
+    }
+
+    public int getTotalEarnings() {
+        int total = 0;
+        for (Order sale : salesHistory) {
+            total += sale.getTotalPrice();
+        }
+        return total;
+    }
+
+    private int calculatePlatformFee(int amount) {
+        return (amount * PLATFORM_FEE_PERCENTAGE) / 100;
+    }
+
+    public int getNetEarnings(int grossAmount) {
+        return grossAmount - calculatePlatformFee(grossAmount);
+    }
+
+    /* ======================== OBJECT METHODS ===================== */
+
+    @Override
+    public String toString() {
+        return "Seller{" +
+                "ID=" + getMemberId() +
+                ", Name='" + getName() + '\'' +
+                ", Email='" + getEmail() + '\'' +
+                ", Money=$" + getMoney() +
+                ", Inventory=" + getInventoryCount() + " items" +
+                ", Total Sales=" + getTotalSalesCount() +
+                '}';
     }
 }
     

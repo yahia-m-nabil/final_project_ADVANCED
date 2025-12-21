@@ -1,45 +1,264 @@
 package org.example.final_project.model;
 
+import java.util.ArrayList;
+
 public class Admin extends Person {
-    private MembersList MembersData;
-    private WarehouseList WarehouseData;
-    //a7abala7mar a7teenbela
 
-    public Admin(int id, String name, String email, MembersList membersData, WarehouseList warehousedata) {
+    public Admin(int id, String name, String email) {
         super(id, name, email);
-        this.MembersData = membersData;
-        this.WarehouseData = warehousedata;
     }
 
-//    public void DisplayAllUsers(){
-//        ArrayList<Member> allMembers = MembersData.getAllMembers();
-//        for (Member member : allMembers) {
-//            member.displayInfo();
-//        }
-//    }
+    /* ======================== QUERY METHODS - GET ALL ===================== */
 
-//    public void DisplayAllSellers(){
-//        ArrayList<Member> allMembers = MembersData.getAllMembers();
-//        for (Member member : allMembers) {
-//            if (member instanceof Seller){
-//                member.displayInfo();
-//            }
-//        }
-//    }
+    public ArrayList<Member> getAllMembers() {
+        return ECommerceSystem.getInstance().getAllMembers();
+    }
 
-    public void FindMemberById(int id) {
-        Member member = MembersData.getMember(id);
-        if (member != null) {
-            //member.displayInfo();
+    public ArrayList<User> getAllUsers() {
+        ArrayList<User> users = new ArrayList<>();
+        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
+            if (member instanceof User) {
+                users.add((User) member);
+            }
         }
+        return users;
     }
 
-    public void DisplayAllItems(){
-
+    public ArrayList<Seller> getAllSellers() {
+        ArrayList<Seller> sellers = new ArrayList<>();
+        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
+            if (member instanceof Seller) {
+                sellers.add((Seller) member);
+            }
+        }
+        return sellers;
     }
 
-    public void FindItemById(int id){
+    public ArrayList<Warehouse> getAllWarehouses() {
+        return ECommerceSystem.getInstance().getAllWarehouses();
+    }
+
+    /* ======================== SEARCH METHODS - FIND BY ID/LOCATION ===================== */
+
+    public Member findMemberById(int id) {
+        return ECommerceSystem.getInstance().findMemberById(id);
+    }
+
+    public User getUserById(int id) {
+        Member member = ECommerceSystem.getInstance().findMemberById(id);
+        if (member instanceof User) {
+            return (User) member;
+        }
+        return null;
+    }
+
+    public Seller getSellerById(int id) {
+        Member member = ECommerceSystem.getInstance().findMemberById(id);
+        if (member instanceof Seller) {
+            return (Seller) member;
+        }
+        return null;
+    }
+
+    public Warehouse findWarehouseByLocation(String location) {
+        return ECommerceSystem.getInstance().findWarehouseByLocation(location);
+    }
+
+    /* ======================== USER MANAGEMENT ===================== */
+
+    public User addUser(int id, String name, String email) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("User name cannot be empty");
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("User email cannot be empty");
+        }
+        if (ECommerceSystem.getInstance().findMemberById(id) != null) {
+            throw new IllegalArgumentException("Member with ID " + id + " already exists");
+        }
+        User user = new User(name, email, id);
+        ECommerceSystem.getInstance().addMember(user);
+        return user;
+    }
+
+    public ArrayList<Order> getUserOrderHistory(int userId) {
+        User user = getUserById(userId);
+        if (user != null) {
+            return user.getOrderHistory();
+        }
+        return new ArrayList<>();
+    }
+
+    /* ======================== SELLER MANAGEMENT ===================== */
+
+    public Seller addSeller(int id, String name, String email) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Seller name cannot be empty");
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Seller email cannot be empty");
+        }
+        if (ECommerceSystem.getInstance().findMemberById(id) != null) {
+            throw new IllegalArgumentException("Member with ID " + id + " already exists");
+        }
+        Seller seller = new Seller(id, name, email);
+        ECommerceSystem.getInstance().addMember(seller);
+        return seller;
+    }
+
+    public ArrayList<Order> getSellerSalesHistory(int sellerId) {
+        Seller seller = getSellerById(sellerId);
+        if (seller != null) {
+            return seller.getSalesHistory();
+        }
+        return new ArrayList<>();
+    }
+
+    /* ======================== MEMBER REMOVAL ===================== */
+
+    public boolean removeMember(int id) {
+        Member member = ECommerceSystem.getInstance().findMemberById(id);
+        if (member == null) {
+            return false;
+        }
+        Member.decrementMemberCount();
+        ECommerceSystem.getInstance().removeMember(id);
+        return true;
+    }
+
+    /* ======================== WAREHOUSE MANAGEMENT ===================== */
+
+    public Warehouse addWarehouse(String location) {
+        if (location == null || location.trim().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse location cannot be empty");
+        }
+        if (ECommerceSystem.getInstance().findWarehouseByLocation(location) != null) {
+            throw new IllegalArgumentException("Warehouse with location '" + location + "' already exists");
+        }
+        Warehouse warehouse = new Warehouse(location);
+        ECommerceSystem.getInstance().addWarehouse(warehouse);
+        return warehouse;
+    }
+
+    public boolean removeWarehouse(String location) {
+        Warehouse warehouse = ECommerceSystem.getInstance().findWarehouseByLocation(location);
+        if (warehouse == null) {
+            return false;
+        }
+        ECommerceSystem.getInstance().removeWarehouse(location);
+        return true;
+    }
+
+    /* ======================== DISCOUNT MANAGEMENT ===================== */
+
+    public int applyDiscount(String location, double discountPercentage) {
+        if (discountPercentage < 0 || discountPercentage > 100) {
+            throw new IllegalArgumentException("Discount percentage must be between 0 and 100");
+        }
         
+        Warehouse warehouse = ECommerceSystem.getInstance().findWarehouseByLocation(location);
+        if (warehouse == null) {
+            return -1;
+        }
+        
+        int itemsDiscounted = 0;
+        ArrayList<FurnitureItem> items = warehouse.getInventory();
+        for (FurnitureItem item : items) {
+            if (item instanceof Discountable discountable) {
+                discountable.AddDiscount(discountPercentage);
+                itemsDiscounted++;
+            }
+        }
+        return itemsDiscounted;
+    }
+
+    public int applyGlobalDiscount(double discountPercentage) {
+        if (discountPercentage < 0 || discountPercentage > 100) {
+            throw new IllegalArgumentException("Discount percentage must be between 0 and 100");
+        }
+        
+        int totalDiscounted = 0;
+        for (Warehouse warehouse : ECommerceSystem.getInstance().getAllWarehouses()) {
+            ArrayList<FurnitureItem> items = warehouse.getInventory();
+            for (FurnitureItem item : items) {
+                if (item instanceof Discountable discountable) {
+                    discountable.AddDiscount(discountPercentage);
+                    totalDiscounted++;
+                }
+            }
+        }
+        return totalDiscounted;
+    }
+
+    /* ======================== INVENTORY MANAGEMENT ===================== */
+
+    public ArrayList<FurnitureItem> getAllItemsInWarehouse(String location) {
+        Warehouse warehouse = ECommerceSystem.getInstance().findWarehouseByLocation(location);
+        if (warehouse != null) {
+            return warehouse.getInventory();
+        }
+        return new ArrayList<>();
+    }
+
+    public ArrayList<FurnitureItem> getAllItemsAcrossWarehouses() {
+        ArrayList<FurnitureItem> allItems = new ArrayList<>();
+        for (Warehouse warehouse : ECommerceSystem.getInstance().getAllWarehouses()) {
+            allItems.addAll(warehouse.getInventory());
+        }
+        return allItems;
+    }
+
+    public FurnitureItem findItemInWarehouse(String location, int itemID) {
+        Warehouse warehouse = ECommerceSystem.getInstance().findWarehouseByLocation(location);
+        if (warehouse != null) {
+            return warehouse.findItemByID(itemID);
+        }
+        return null;
+    }
+
+    /* ======================== STATISTICS & ANALYTICS ===================== */
+
+    public int getTotalUsersCount() {
+        int count = 0;
+        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
+            if (member instanceof User) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getTotalSellersCount() {
+        int count = 0;
+        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
+            if (member instanceof Seller) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getTotalWarehousesCount() {
+        return ECommerceSystem.getInstance().getAllWarehouses().size();
+    }
+
+    public int getTotalItemsCount() {
+        int total = 0;
+        for (Warehouse warehouse : ECommerceSystem.getInstance().getAllWarehouses()) {
+            for (FurnitureItem item : warehouse.getInventory()) {
+                total += item.getQuantity();
+            }
+        }
+        return total;
+    }
+
+    public int getTotalInventoryValue() {
+        int total = 0;
+        for (Warehouse warehouse : ECommerceSystem.getInstance().getAllWarehouses()) {
+            for (FurnitureItem item : warehouse.getInventory()) {
+                total += item.getPrice() * item.getQuantity();
+            }
+        }
+        return total;
     }
 }
-
