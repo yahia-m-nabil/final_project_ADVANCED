@@ -1,8 +1,8 @@
-package org.example.final_project.model;
+package main.java.org.example.final_project.model;
 
 import java.util.ArrayList;
 
-public class Admin extends Person {
+public class Admin extends Member {
 
     public Admin(int id, String name, String email) {
         super(id, name, email);
@@ -209,5 +209,9 @@ public class Admin extends Person {
 
     public int getTotalInventoryValue() {
         return ECommerceSystem.getInstance().getWarehouseData().getTotalInventoryValue();
+    }
+
+    public int calculateMoney() {
+        return 0; // Admin does not have personal earnings
     }
 }
