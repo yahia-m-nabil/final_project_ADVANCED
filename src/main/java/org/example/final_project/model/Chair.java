@@ -23,11 +23,7 @@ public class Chair extends FurnitureItem implements Discountable {
 
     @Override
     public void AddDiscount(double discountPercentage) {
-        if (discountPercentage < 0 || discountPercentage > 1) {
-            throw new IllegalArgumentException("Discount must be between 0 and 1");
-        }
-        int discountedPrice = (int) (this.getPrice() * (1 - discountPercentage));
-        this.setPrice(discountedPrice);
+        applyDiscount(discountPercentage);
     }
 
     /* ======================== STRING REPRESENTATION ===================== */

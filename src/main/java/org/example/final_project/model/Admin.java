@@ -15,23 +15,11 @@ public class Admin extends Person {
     }
 
     public ArrayList<User> getAllUsers() {
-        ArrayList<User> users = new ArrayList<>();
-        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
-            if (member instanceof User) {
-                users.add((User) member);
-            }
-        }
-        return users;
+        return ECommerceSystem.getInstance().getMembersData().getAllUsers();
     }
 
     public ArrayList<Seller> getAllSellers() {
-        ArrayList<Seller> sellers = new ArrayList<>();
-        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
-            if (member instanceof Seller) {
-                sellers.add((Seller) member);
-            }
-        }
-        return sellers;
+        return ECommerceSystem.getInstance().getMembersData().getAllSellers();
     }
 
     public ArrayList<Warehouse> getAllWarehouses() {
@@ -67,12 +55,6 @@ public class Admin extends Person {
     /* ======================== USER MANAGEMENT ===================== */
 
     public User addUser(int id, String name, String email) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("User name cannot be empty");
-        }
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("User email cannot be empty");
-        }
         if (ECommerceSystem.getInstance().findMemberById(id) != null) {
             throw new IllegalArgumentException("Member with ID " + id + " already exists");
         }
@@ -92,12 +74,6 @@ public class Admin extends Person {
     /* ======================== SELLER MANAGEMENT ===================== */
 
     public Seller addSeller(int id, String name, String email) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Seller name cannot be empty");
-        }
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Seller email cannot be empty");
-        }
         if (ECommerceSystem.getInstance().findMemberById(id) != null) {
             throw new IllegalArgumentException("Member with ID " + id + " already exists");
         }
@@ -129,9 +105,6 @@ public class Admin extends Person {
     /* ======================== WAREHOUSE MANAGEMENT ===================== */
 
     public Warehouse addWarehouse(String location) {
-        if (location == null || location.trim().isEmpty()) {
-            throw new IllegalArgumentException("Warehouse location cannot be empty");
-        }
         if (ECommerceSystem.getInstance().findWarehouseByLocation(location) != null) {
             throw new IllegalArgumentException("Warehouse with location '" + location + "' already exists");
         }
@@ -219,46 +192,22 @@ public class Admin extends Person {
     /* ======================== STATISTICS & ANALYTICS ===================== */
 
     public int getTotalUsersCount() {
-        int count = 0;
-        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
-            if (member instanceof User) {
-                count++;
-            }
-        }
-        return count;
+        return ECommerceSystem.getInstance().getMembersData().getUserCount();
     }
 
     public int getTotalSellersCount() {
-        int count = 0;
-        for (Member member : ECommerceSystem.getInstance().getAllMembers()) {
-            if (member instanceof Seller) {
-                count++;
-            }
-        }
-        return count;
+        return ECommerceSystem.getInstance().getMembersData().getSellerCount();
     }
 
     public int getTotalWarehousesCount() {
-        return ECommerceSystem.getInstance().getAllWarehouses().size();
+        return ECommerceSystem.getInstance().getWarehouseData().getWarehouseCount();
     }
 
     public int getTotalItemsCount() {
-        int total = 0;
-        for (Warehouse warehouse : ECommerceSystem.getInstance().getAllWarehouses()) {
-            for (FurnitureItem item : warehouse.getInventory()) {
-                total += item.getQuantity();
-            }
-        }
-        return total;
+        return ECommerceSystem.getInstance().getWarehouseData().getTotalInventoryQuantity();
     }
 
     public int getTotalInventoryValue() {
-        int total = 0;
-        for (Warehouse warehouse : ECommerceSystem.getInstance().getAllWarehouses()) {
-            for (FurnitureItem item : warehouse.getInventory()) {
-                total += item.getPrice() * item.getQuantity();
-            }
-        }
-        return total;
+        return ECommerceSystem.getInstance().getWarehouseData().getTotalInventoryValue();
     }
 }

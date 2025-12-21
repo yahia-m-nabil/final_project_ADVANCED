@@ -61,12 +61,6 @@ public class ECommerceSystem {
     }
 
     public User signupUser(String name, String email, String password, int id) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
@@ -80,12 +74,6 @@ public class ECommerceSystem {
     }
 
     public Seller signupSeller(String name, String email, String password, int id) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
