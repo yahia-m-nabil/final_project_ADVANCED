@@ -59,7 +59,9 @@ public class LoginController {
 
             // 3. Verify that the member matches the selected role
             if (isValidRole(member)) {
-                System.out.println("Login successful ");
+                // Set the current member in the session
+                system.setCurrentMember(member);
+                System.out.println("Login successful for " + member.getName());
                 redirectUser(member, event);
             } else {
                 showError("Role Mismatch", "The account found does not match the selected role.");

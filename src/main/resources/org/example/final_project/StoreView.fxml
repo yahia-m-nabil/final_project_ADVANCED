@@ -14,10 +14,10 @@
             <HBox HBox.hgrow="ALWAYS" />
 
             <TextField fx:id="searchField" prefWidth="250" promptText="Search furniture..." />
-            <Button text="Search" />
+            <Button onAction="#handleSearch" text="Search" />
 
-            <Button style="-fx-background-color: #f4b400; -fx-text-fill: white; -fx-font-weight: bold;" text="My Cart" />
-            <Button text="Profile" />
+            <Button onAction="#goToCart" style="-fx-background-color: #f4b400; -fx-text-fill: white; -fx-font-weight: bold;" text="My Cart" />
+            <Button onAction="#goToProfile" text="Profile" />
         </HBox>
     </top>
 
@@ -70,7 +70,7 @@
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <Button maxWidth="Infinity" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Logout" />
+            <Button maxWidth="Infinity" onAction="#handleLogout" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Logout" />
         </VBox>
     </left>
 

@@ -1,11 +1,16 @@
 package org.example.final_project.Controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.TilePane;
 import javafx.event.ActionEvent;
-import java.net.URL;
-import java.util.ResourceBundle;
+import javafx.stage.Stage;
+import org.example.final_project.model.ECommerceSystem;
+
+import java.io.IOException;
 
 public class StoreController {
 
@@ -80,19 +85,35 @@ public class StoreController {
 
     @FXML
     private void goToCart(ActionEvent event) {
-        // TODO: Switch scene to CheckoutView.fxml
-        System.out.println("Navigating to Cart...");
+        navigateTo("/org/example/final_project/checkout.fxml", "Cart/Checkout", event);
     }
 
     @FXML
     private void goToProfile(ActionEvent event) {
-        // TODO: Switch scene to CustomerProfileView.fxml
-        System.out.println("Navigating to Profile...");
+        navigateTo("/org/example/final_project/customerPage.fxml", "Customer Profile", event);
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // TODO: Clear session and return to LoginView.fxml
-        System.out.println("Logging out...");
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        system.clearSession();
+        navigateTo("/org/example/final_project/Login.fxml", "Login", event);
+        System.out.println("User logged out successfully.");
+    }
+
+    /**
+     * Helper method to navigate to different scenes.
+     */
+    private void navigateTo(String fxmlPath, String pageName, ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            System.out.println("Navigating to " + pageName + "...");
+        } catch (IOException e) {
+            System.err.println("Error loading " + pageName + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

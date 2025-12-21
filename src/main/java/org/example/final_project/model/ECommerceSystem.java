@@ -5,12 +5,14 @@ import java.util.ArrayList;
 public class ECommerceSystem {
     private static ECommerceSystem instance;
     
-    private  MembersList membersData;
-    private  WarehouseList warehouseData;
+    private MembersList membersData;
+    private WarehouseList warehouseData;
+    private Member currentMember;  // Session: currently logged-in member
 
     private ECommerceSystem() {
         this.membersData = new MembersList();
         this.warehouseData = new WarehouseList();
+        this.currentMember = null;  // No one logged in initially
 
 
         // --- STARTUP DATA INITIALIZATION ---
@@ -22,7 +24,7 @@ public class ECommerceSystem {
 
         // 2. Add Users (Customers)
         // Note: Your User constructor takes (Name, Email, ID)
-        User amr = addUser(1, "Amr Emad", "amr@gmail.com");
+        User amr = addUser(1, "Amr Emad", "a");
         amr.setPassword("123456");
 
         // 3. Add Sellers
@@ -150,6 +152,61 @@ public class ECommerceSystem {
         this.addMember(seller);
 
         return seller;
+    }
+
+    // ======================== SESSION MANAGEMENT =====================
+
+    public void setCurrentMember(Member member) {
+        this.currentMember = member;
+    }
+
+    public Member getCurrentMember() {
+        return currentMember;
+    }
+
+    public User getCurrentUser() {
+        if (currentMember instanceof User) {
+            return (User) currentMember;
+        }
+        return null;
+    }
+
+
+    public Seller getCurrentSeller() {
+        if (currentMember instanceof Seller) {
+            return (Seller) currentMember;
+        }
+        return null;
+    }
+
+    public Admin getCurrentAdmin() {
+        if (currentMember instanceof Admin) {
+            return (Admin) currentMember;
+        }
+        return null;
+    }
+
+
+    public boolean isLoggedIn() {
+        return currentMember != null;
+    }
+
+
+    public void clearSession() {
+        this.currentMember = null;
+    }
+
+
+    public String getCurrentMemberName() {
+        return currentMember != null ? currentMember.getName() : "Guest";
+    }
+
+    public String getMemberType() {
+        if (currentMember == null) return "Guest";
+        if (currentMember instanceof Admin) return "Admin";
+        if (currentMember instanceof Seller) return "Seller";
+        if (currentMember instanceof User) return "User";
+        return "Unknown";
     }
 
 }

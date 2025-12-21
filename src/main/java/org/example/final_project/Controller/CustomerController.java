@@ -2,8 +2,18 @@ package org.example.final_project.Controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
+import org.example.final_project.model.*;
+
+
+import java.io.IOException;
 
 public class CustomerController {
 
@@ -13,77 +23,104 @@ public class CustomerController {
     @FXML private TextField idField;
     @FXML private TextField nameField;
     @FXML private TextField emailField;
+    @FXML private TextField searchField;
 
     // --- Wishlist Table Injections ---
-    @FXML private TableView<?> wishlistTable; // Replace ? with FurnitureItem
-    @FXML private TableColumn<?, String> colWishItem;
-    @FXML private TableColumn<?, String> colWishMaterial;
-    @FXML private TableColumn<?, Double> colWishPrice;
-    @FXML private TableColumn<?, Integer> colWishQty;
+    @FXML private TableView<FurnitureItem> wishlistTable;
+    @FXML private TableColumn<FurnitureItem, String> colWishItem;
+    @FXML private TableColumn<FurnitureItem, String> colWishMaterial;
+    @FXML private TableColumn<FurnitureItem, Double> colWishPrice;
+    @FXML private TableColumn<FurnitureItem, Integer> colWishQty;
 
     // --- Order History Table Injections ---
-    @FXML private TableView<?> orderTable; // Replace ? with Order
-    @FXML private TableColumn<?, String> colOrderId;
-    @FXML private TableColumn<?, String> colDate;
-    @FXML private TableColumn<?, String> colStatus;
-    @FXML private TableColumn<?, Double> colTotal;
+    @FXML private TableView<Order> orderTable;
+    @FXML private TableColumn<Order, String> colOrderId;
+    @FXML private TableColumn<Order, String> colDate;
+    @FXML private TableColumn<Order, String> colStatus;
+    @FXML private TableColumn<Order, Double> colTotal;
 
-    /**
-     * Called when the profile page is loaded.
-     */
     @FXML
     public void initialize() {
         System.out.println("Customer Profile Initialized");
-
         setupTableFactories();
         loadCustomerData();
     }
 
-    /**
-     * Connects table columns to your Java object properties.
-     */
     private void setupTableFactories() {
-        // TODO: colWishItem.setCellValueFactory(new PropertyValueFactory<>("name"));
-        // TODO: colOrderId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        // ... repeat for all columns
+        colWishItem.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colWishMaterial.setCellValueFactory(new PropertyValueFactory<>("material"));
+        colWishPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        colWishQty.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+        colOrderId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("date"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("total"));
     }
 
-    /**
-     * Populates fields and tables from the current logged-in User object.
-     */
     private void loadCustomerData() {
-        // TODO: User currentUser = Session.getCurrentUser();
-        // sidebarName.setText(currentUser.getName());
-        // idField.setText(String.valueOf(currentUser.getMemberId()));
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        User currentUser = system.getCurrentUser();
 
-        // TODO: wishlistTable.setItems(currentUser.getWishlist());
-        // TODO: orderTable.setItems(currentUser.getOrderHistory());
+        if (currentUser != null) {
+            sidebarName.setText(currentUser.getName());
+            sidebarEmail.setText(currentUser.getEmail());
+            idField.setText(String.valueOf(currentUser.getMemberId()));
+            nameField.setText(currentUser.getName());
+            emailField.setText(currentUser.getEmail());
 
-        System.out.println("Displaying account details and history...");
+            ObservableList<FurnitureItem> wishlist = FXCollections.observableArrayList(currentUser.getWishlist());
+            wishlistTable.setItems(wishlist);
+
+            ObservableList<Order> orderHistory = FXCollections.observableArrayList(currentUser.getOrderHistory());
+            orderTable.setItems(orderHistory);
+
+            System.out.println("Displaying account details and history...");
+        }
     }
-
-    // --- Navigation Actions ---
 
     @FXML
     private void handleSearch() {
-        // TODO: Logic for top-bar search
+        String searchTerm = searchField != null ? searchField.getText() : "";
+        if (!searchTerm.isEmpty()) {
+            System.out.println("Searching for: " + searchTerm);
+        }
     }
 
     @FXML
     private void goToCart() {
-        // TODO: Navigate to CheckoutView.fxml
-        System.out.println("Switching to Cart/Checkout...");
+        navigateTo("/org/example/final_project/View/checkout.fxml", "Cart/Checkout");
     }
 
     @FXML
     private void goToStore() {
-        // TODO: Navigate to CustomerStoreHome.fxml
-        System.out.println("Returning to Store...");
+        navigateTo("/org/example/final_project/View/customer-store-home.fxml", "Store");
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // TODO: Clear session and return to LoginView.fxml
-        System.out.println("User logged out safely.");
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        system.clearSession();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/final_project/Login.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            System.out.println("User logged out safely.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateTo(String fxmlPath, String pageName) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) idField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            System.out.println("Switching to " + pageName + "...");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
