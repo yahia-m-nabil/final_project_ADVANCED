@@ -38,6 +38,16 @@ public abstract class FurnitureItem implements Comparable<FurnitureItem> {
 
     public abstract FurnitureItem createCopy(int newQuantity);
 
+    /* ======================== DISCOUNT MANAGEMENT ===================== */
+
+    protected void applyDiscount(double discountPercentage) {
+        if (discountPercentage < 0 || discountPercentage > 1) {
+            throw new IllegalArgumentException("Discount must be between 0 and 1");
+        }
+        int discountedPrice = (int) (this.price * (1 - discountPercentage));
+        this.setPrice(discountedPrice);
+    }
+
     /* ======================== GETTERS ===================== */
 
     public int getItemID() {
