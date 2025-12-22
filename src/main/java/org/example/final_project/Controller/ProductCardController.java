@@ -145,9 +145,13 @@ public class ProductCardController {
             stockLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
         }
 
-        // Show discount label only for discountable items
-        if (furnitureItem instanceof Discountable) {
+        // Show discount label with actual percentage if item has discount
+        if (furnitureItem instanceof Discountable && furnitureItem.hasDiscount()) {
+            int discountPercentage = furnitureItem.getDiscountPercentage();
+            discountLabel.setText(discountPercentage + "% OFF");
             discountLabel.setVisible(true);
+        } else {
+            discountLabel.setVisible(false);
         }
 
         loadImage(furnitureItem);

@@ -20,6 +20,7 @@ public class StoreController {
     // --- FXML Injections ---
     @FXML private TextField searchField;
     @FXML private ComboBox<String> sortComboBox;
+    @FXML private ComboBox<String> warehouseComboBox;
     @FXML private TilePane productGrid;
 
     // Category Checkboxes
@@ -43,10 +44,21 @@ public class StoreController {
      */
     @FXML
     public void initialize() {
-        // 1. Setup Sorting Listener
+        // 1. Populate Warehouse ComboBox
+        populateWarehouses();
+
+        // 2. Setup Warehouse Listener
+        warehouseComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                saveSelectedWarehouse(newVal);
+                loadProducts();
+            }
+        });
+
+        // 3. Setup Sorting Listener
         sortComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> loadProducts());
 
-        // 2. Setup Filter Listeners (Reload grid whenever a checkbox is clicked)
+        // 4. Setup Filter Listeners (Reload grid whenever a checkbox is clicked)
         CheckBox[] allFilters = {
                 checkChairs, checkDesks, checkTables,
                 checkWood, checkMetal, checkPlastic,
@@ -56,8 +68,32 @@ public class StoreController {
             cb.selectedProperty().addListener((obs, old, newVal) -> loadProducts());
         }
 
-        // 3. Initial Load
+        // 5. Initial Load
         loadProducts();
+    }
+
+    private void populateWarehouses() {
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        ArrayList<Warehouse> warehouses = system.getAllWarehouses();
+
+        for (Warehouse warehouse : warehouses) {
+            warehouseComboBox.getItems().add(warehouse.getLocation());
+        }
+
+        // Select first warehouse by default
+        if (!warehouseComboBox.getItems().isEmpty()) {
+            warehouseComboBox.getSelectionModel().selectFirst();
+        }
+    }
+
+    private void saveSelectedWarehouse(String location) {
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        User currentUser = system.getCurrentUser();
+
+        if (currentUser != null) {
+            Warehouse warehouse = system.findWarehouseByLocation(location);
+            currentUser.setSelectedWarehouse(warehouse);
+        }
     }
 
     /**
@@ -67,8 +103,19 @@ public class StoreController {
     public void loadProducts() {
         productGrid.getChildren().clear();
 
-        // Get all items using ECommerceSystem facade
-        ArrayList<FurnitureItem> allItems = ECommerceSystem.getInstance().getAllItems();
+        // Get items from selected warehouse only
+        String selectedLocation = warehouseComboBox.getValue();
+        if (selectedLocation == null) {
+            return; // No warehouse selected yet
+        }
+
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        Warehouse warehouse = system.findWarehouseByLocation(selectedLocation);
+        if (warehouse == null) {
+            return;
+        }
+
+        ArrayList<FurnitureItem> allItems = warehouse.getInventory();
 
         // Apply Search and Checkbox Filters (using simple loops - KISS principle)
         ArrayList<FurnitureItem> filteredList = new ArrayList<>();

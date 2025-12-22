@@ -92,29 +92,33 @@ public class Seller extends Member {
             throw new IllegalArgumentException("Type cannot be empty");
         }
         
-        FurnitureItem newItem;
-        String itemType = type.trim().toLowerCase();
-        
-        switch (itemType) {
-            case "chair":
-                newItem = new Chair(itemId, quantity, material, color);
-                break;
-            case "table":
-                newItem = new Table(itemId, quantity, material, color);
-                break;
-            case "desk":
-                newItem = new Desk(itemId, quantity, material, color);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid furniture type: " + type + ". Must be 'chair', 'table', or 'desk'");
-        }
-        
-        newItem.setPrice(newItem.calculatePrice(TableStorage.getInstance()));
+        // Check if item with this ID already exists in seller's inventory
         FurnitureItem existing = findItemInInventory(itemId);
-        
+
         if (existing != null) {
+            // Item exists - just add quantity to existing item
             existing.addQuantity(quantity);
         } else {
+            // Item doesn't exist - create new item
+            FurnitureItem newItem;
+            String itemType = type.trim().toLowerCase();
+
+            switch (itemType) {
+                case "chair":
+                    newItem = new Chair(itemId, quantity, material, color);
+                    break;
+                case "table":
+                    newItem = new Table(itemId, quantity, material, color);
+                    break;
+                case "desk":
+                    newItem = new Desk(itemId, quantity, material, color);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid furniture type: " + type + ". Must be 'chair', 'table', or 'desk'");
+            }
+
+            // Price is already set in constructor, but ensure it's correct
+            newItem.setPrice(newItem.calculatePrice(TableStorage.getInstance()));
             sellableFurniture.add(newItem);
         }
     }

@@ -13,11 +13,11 @@
             </Label>
             <Separator opacity="0.2" />
 
-            <Button maxWidth="Infinity" onAction="#showDashboard" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text="🏠 Dashboard" />
-            <Button maxWidth="Infinity" onAction="#manageUsers" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text="👥 Manage Customers" />
-            <Button maxWidth="Infinity" onAction="#manageSellers" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text="🏪 Manage Sellers" />
-            <Button maxWidth="Infinity" onAction="#manageProducts" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text="📦 Manage Products" />
-            <Button maxWidth="Infinity" onAction="#manageWarehouses" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text="🏢 Warehouses" />
+            <Button maxWidth="Infinity" onAction="#showDashboard" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 14;" text="🏠 Dashboard" />
+            <Button maxWidth="Infinity" onAction="#manageUsers" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 14;" text="👥 Manage Customers" />
+            <Button maxWidth="Infinity" onAction="#manageSellers" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 14;" text="🏪 Manage Sellers" />
+            <Button maxWidth="Infinity" onAction="#manageProducts" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 14;" text="📦 Manage Products" />
+            <Button maxWidth="Infinity" onAction="#manageWarehouses" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 14;" text="🏢 Warehouses" />
 
             <Region VBox.vgrow="ALWAYS" />
             <Button maxWidth="Infinity" onAction="#handleLogout" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="LOGOUT" />
@@ -32,23 +32,23 @@
 
             <HBox spacing="20">
                 <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" HBox.hgrow="ALWAYS">
-                    <Label text="Total Customers" textFill="#7f8c8d" />
+                    <Label text="Total Customers" textFill="#7f8c8d"><font><Font size="14.0" /></font></Label>
                     <Label fx:id="userCountLabel" text="0" textFill="#2980b9"><font><Font name="System Bold" size="40.0" /></font></Label>
                 </VBox>
 
                 <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" HBox.hgrow="ALWAYS">
-                    <Label text="Total Sellers" textFill="#7f8c8d" />
+                    <Label text="Total Sellers" textFill="#7f8c8d"><font><Font size="14.0" /></font></Label>
                     <Label fx:id="sellerCountLabel" text="0" textFill="#8e44ad"><font><Font name="System Bold" size="40.0" /></font></Label>
                 </VBox>
 
                 <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" HBox.hgrow="ALWAYS">
-                    <Label text="Live Products" textFill="#7f8c8d" />
+                    <Label text="Live Products" textFill="#7f8c8d"><font><Font size="14.0" /></font></Label>
                     <Label fx:id="productCountLabel" text="0" textFill="#27ae60"><font><Font name="System Bold" size="40.0" /></font></Label>
                 </VBox>
             </HBox>
 
             <StackPane fx:id="contentPane" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20;" VBox.vgrow="ALWAYS">
-                <Label text="Select an option from the sidebar." textFill="#bdc3c7" />
+                <Label text="Select an option from the sidebar." textFill="#bdc3c7"><font><Font size="18.0" /></font></Label>
             </StackPane>
         </VBox>
     </center>

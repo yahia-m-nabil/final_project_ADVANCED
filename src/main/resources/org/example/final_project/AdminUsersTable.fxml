@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="15" style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
+    <Label text="Customer Management" textFill="#2c3e50">
+        <font><Font name="System Bold" size="24.0" /></font>
+    </Label>
+
+    <Button fx:id="addBtn" text="+ Add New Customer" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20;" />
+
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS" style="-fx-font-size: 14;">
+        <columns>
+            <TableColumn fx:id="idCol" text="ID" prefWidth="80" />
+            <TableColumn fx:id="nameCol" text="Name" prefWidth="200" />
+            <TableColumn fx:id="emailCol" text="Email" prefWidth="250" />
+            <TableColumn fx:id="ordersCol" text="Orders" prefWidth="100" />
+            <TableColumn fx:id="actionsCol" text="Actions" prefWidth="120" />
+        </columns>
+    </TableView>
+</VBox>
+

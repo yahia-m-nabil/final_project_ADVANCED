@@ -2,15 +2,14 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<BorderPane prefWidth="1200" prefHeight="800" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.final_project.Controller.CheckoutController">
+<BorderPane prefWidth="1200" prefHeight="800" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.final_project.Controller.SellerCheckoutController">
 
     <top>
         <HBox spacing="20" style="-fx-background-color: #333; -fx-padding: 15; -fx-alignment: CENTER_LEFT;">
-            <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="FurnitureApp | Checkout" textFill="WHITE" />
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="FurnitureApp | Supply to Warehouse" textFill="WHITE" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button onAction="#goBackToStore" text="Back to Store" style="-fx-cursor: hand;" />
+            <Button onAction="#goBackToSellerPage" text="Back to Dashboard" style="-fx-cursor: hand;" />
         </HBox>
     </top>
 
@@ -18,10 +17,10 @@
         <HBox spacing="30" style="-fx-padding: 30; -fx-background-color: #f9f9f9;">
 
             <VBox spacing="15" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);">
-                <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Review Your Order" />
+                <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Review Your Inventory" />
                 <Separator />
 
-                <TableView fx:id="checkoutTable" VBox.vgrow="ALWAYS">
+                <TableView fx:id="inventoryTable" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="colItem" prefWidth="180" text="Furniture Item" />
                         <TableColumn fx:id="colQty" prefWidth="60" text="Qty" />
@@ -36,43 +35,44 @@
             </VBox>
 
             <VBox spacing="20" prefWidth="350" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);">
-                <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Order Summary" />
+                <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Supply Summary" />
                 <Separator />
 
                 <VBox spacing="10">
                     <HBox>
-                        <Label text="Items Total:" textFill="#666" />
+                        <Label text="Gross Earnings:" textFill="#666" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="itemsTotalLabel" text="\$0.00" />
+                        <Label fx:id="grossEarningsLabel" text="\$0.00" />
                     </HBox>
                     <HBox>
-                        <Label text="Tax (15%):" textFill="#666" />
+                        <Label text="Platform Fee (5%):" textFill="#666" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="taxLabel" text="\$0.00" />
+                        <Label fx:id="platformFeeLabel" text="\$0.00" />
                     </HBox>
                     <Separator />
                     <HBox>
-                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Total Amount:" />
+                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Net Earnings:" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="finalTotalLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333;" text="\$0.00" />
+                        <Label fx:id="netEarningsLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4caf50;" text="\$0.00" />
                     </HBox>
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" />
 
                 <VBox spacing="8">
-                    <Label text="Pickup Location:" style="-fx-font-weight: bold;" />
-                    <Label fx:id="warehouseLabel" style="-fx-font-size: 14px; -fx-text-fill: #4caf50; -fx-font-weight: bold;" text="No warehouse selected" />
-                    <Label text="Items will be deducted from this warehouse." style="-fx-font-size: 10px; -fx-text-fill: #888;" />
+                    <Label text="Select Target Warehouse:" style="-fx-font-weight: bold;" />
+                    <ComboBox fx:id="warehouseSelector" maxWidth="Infinity" promptText="Choose Location..." />
+                    <Label text="Your items will be added to this warehouse." style="-fx-font-size: 10px; -fx-text-fill: #888;" />
                 </VBox>
 
                 <VBox spacing="10" alignment="CENTER">
-                    <Button fx:id="placeOrderButton" onAction="#handlePlaceOrder" maxWidth="Infinity"
-                            style="-fx-background-color: #f4b400; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 15; -fx-cursor: hand;"
-                            text="Confirm &amp; Pay" />
-                    <Label text="Secure Transaction Guaranteed" style="-fx-font-size: 11px;" textFill="#4caf50" />
+                    <Button fx:id="supplyButton" onAction="#handleSupplyToWarehouse" maxWidth="Infinity"
+                            style="-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 15; -fx-cursor: hand;"
+                            text="Supply &amp; Get Paid" />
+                    <Label text="Secure Payment Guaranteed" style="-fx-font-size: 11px;" textFill="#4caf50" />
                 </VBox>
             </VBox>
         </HBox>
     </center>
 </BorderPane>
+

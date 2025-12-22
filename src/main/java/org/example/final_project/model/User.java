@@ -9,6 +9,7 @@ public class User extends Member {
 
     private final ArrayList<FurnitureItem> wishlist;
     private final ArrayList<Order> orderHistory;
+    private Warehouse selectedWarehouse;
     private static final int CUSTOMER_TAX_PERCENTAGE = 15;
     private static final int REFUND_PERIOD_DAYS = 30;
 
@@ -52,6 +53,14 @@ public class User extends Member {
 
     public String getFormattedTotalSpent() {
         return "$" + getTotalSpent();
+    }
+
+    public Warehouse getSelectedWarehouse() {
+        return selectedWarehouse;
+    }
+
+    public void setSelectedWarehouse(Warehouse warehouse) {
+        this.selectedWarehouse = warehouse;
     }
 
     /* ======================== SEARCH METHODS ===================== */

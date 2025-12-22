@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="15" style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
+    <Label text="Warehouse Management" textFill="#2c3e50">
+        <font><Font name="System Bold" size="24.0" /></font>
+    </Label>
+
+    <Button fx:id="addBtn" text="+ Add New Warehouse" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20;" />
+
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="locationCol" text="Location" prefWidth="250" />
+            <TableColumn fx:id="itemsCol" text="Total Items" prefWidth="150" />
+            <TableColumn fx:id="stockCol" text="Total Stock" prefWidth="150" />
+            <TableColumn fx:id="actionsCol" text="Actions" prefWidth="120" />
+        </columns>
+    </TableView>
+</VBox>
+

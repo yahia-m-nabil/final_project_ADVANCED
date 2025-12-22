@@ -10,7 +10,8 @@
         <HBox spacing="20" style="-fx-background-color: #333; -fx-padding: 15; -fx-alignment: CENTER_LEFT;">
             <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="FurnitureApp | Seller Central" textFill="WHITE" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button style="-fx-background-color: #f4b400; -fx-text-fill: white; -fx-font-weight: bold;" text="+ Add New Product" />
+            <Button onAction="#handleSupplyToWarehouse" style="-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;" text="Supply to Warehouse" />
+            <Button onAction="#handleAddNewProduct" style="-fx-background-color: #f4b400; -fx-text-fill: white; -fx-font-weight: bold;" text="+ Add New Product" />
         </HBox>
     </top>
 
@@ -28,7 +29,7 @@
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <Button maxWidth="Infinity" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Logout" />
+            <Button onAction="#handleLogout" maxWidth="Infinity" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Logout" />
         </VBox>
     </left>
 
@@ -40,7 +41,7 @@
                     <HBox alignment="CENTER_LEFT">
                         <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Stock Management" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <TextField promptText="Search items..." />
+                        <TextField fx:id="searchField" onKeyReleased="#handleSearchInventory" promptText="Search items..." />
                     </HBox>
                     <Separator />
                     <TableView fx:id="inventoryTable" prefHeight="300.0">

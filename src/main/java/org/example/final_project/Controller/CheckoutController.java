@@ -29,9 +29,9 @@ public class CheckoutController {
     @FXML private Label itemsTotalLabel;
     @FXML private Label taxLabel;
     @FXML private Label finalTotalLabel;
+    @FXML private Label warehouseLabel;
 
-    // --- Selection & Actions ---
-    @FXML private ComboBox<String> warehouseSelector;
+    // --- Actions ---
     @FXML private Button placeOrderButton;
 
     private double totalAmount = 0.0;
@@ -44,9 +44,22 @@ public class CheckoutController {
         System.out.println("Checkout Screen Initialized");
 
         setupColumns();
-        populateWarehouseList();
+        displaySelectedWarehouse();
         loadCartItems();
         calculateTotals();
+    }
+
+    private void displaySelectedWarehouse() {
+        ECommerceSystem system = ECommerceSystem.getInstance();
+        User currentUser = system.getCurrentUser();
+
+        if (currentUser != null && currentUser.getSelectedWarehouse() != null) {
+            String location = currentUser.getSelectedWarehouse().getLocation();
+            warehouseLabel.setText(location + " Warehouse");
+        } else {
+            warehouseLabel.setText("No warehouse selected");
+            warehouseLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+        }
     }
 
     /**
@@ -67,6 +80,7 @@ public class CheckoutController {
         // Actions column - Remove button
         colActions.setCellFactory(column -> new TableCell<FurnitureItem, Void>() {
             private final Button removeBtn = new Button("Remove");
+
             {
                 removeBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 5 10;");
                 removeBtn.setOnAction(event -> {
@@ -74,6 +88,7 @@ public class CheckoutController {
                     handleRemoveFromCart(item);
                 });
             }
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -81,24 +96,6 @@ public class CheckoutController {
             }
         });
     }
-
-    private void populateWarehouseList() {
-        ECommerceSystem system = ECommerceSystem.getInstance();
-        ArrayList<Warehouse> warehouses = system.getAllWarehouses();
-
-        ObservableList<String> warehouseNames = FXCollections.observableArrayList();
-        for (Warehouse warehouse : warehouses) {
-            warehouseNames.add(warehouse.getLocation());
-        }
-
-        warehouseSelector.setItems(warehouseNames);
-
-        // Select first warehouse by default if available
-        if (!warehouseNames.isEmpty()) {
-            warehouseSelector.getSelectionModel().selectFirst();
-        }
-    }
-
 
     private void loadCartItems() {
         ECommerceSystem system = ECommerceSystem.getInstance();
@@ -176,9 +173,10 @@ public class CheckoutController {
             return;
         }
 
-        String selectedWH = warehouseSelector.getValue();
-        if (selectedWH == null) {
-            showAlert("Selection Required", "Please choose a pickup warehouse.");
+        // Get pre-selected warehouse from user
+        Warehouse warehouse = currentUser.getSelectedWarehouse();
+        if (warehouse == null) {
+            showAlert("Selection Required", "Please select a warehouse from the store page first.");
             return;
         }
 
@@ -196,18 +194,12 @@ public class CheckoutController {
             return;
         }
 
-        // Get the selected warehouse
-        Warehouse warehouse = system.findWarehouseByLocation(selectedWH);
-        if (warehouse == null) {
-            showAlert("Error", "Selected warehouse not found.");
-            return;
-        }
-
         // Check stock availability
+        String warehouseLocation = warehouse.getLocation();
         for (FurnitureItem item : wishlist) {
             if (!warehouse.hasEnoughStock(item.getItemID(), item.getQuantity())) {
                 showAlert("Insufficient Stock",
-                    String.format("Not enough stock for %s at %s warehouse.", item.getName(), selectedWH));
+                    String.format("Not enough stock for %s at %s warehouse.", item.getName(), warehouseLocation));
                 return;
             }
         }
@@ -223,7 +215,7 @@ public class CheckoutController {
             // Show success message
             showSuccess("Order Placed Successfully",
                 String.format("Your order #%d is ready for pickup at %s.\nTotal paid: $%.2f\nRemaining balance: $%d",
-                newOrder.getOrderId(), selectedWH, totalAmount, currentUser.getMoney()));
+                newOrder.getOrderId(), warehouseLocation, totalAmount, currentUser.getMoney()));
 
             // Navigate back to store after successful order
             goBackToStore(event);

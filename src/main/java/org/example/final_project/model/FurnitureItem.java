@@ -7,6 +7,7 @@ public abstract class FurnitureItem implements Comparable<FurnitureItem> {
     private final int itemID;
     private int quantity;
     private int price;
+    private int originalPrice; // Track original price to calculate discount
     private final Materials material;
     private final Colors color;
 
@@ -30,6 +31,7 @@ public abstract class FurnitureItem implements Comparable<FurnitureItem> {
         this.material = material;
         this.color = color;
         this.price = 0;
+        this.originalPrice = 0;
     }
 
     /* ======================== ABSTRACT METHODS ===================== */
@@ -44,8 +46,23 @@ public abstract class FurnitureItem implements Comparable<FurnitureItem> {
         if (discountPercentage < 0 || discountPercentage > 1) {
             throw new IllegalArgumentException("Discount must be between 0 and 1");
         }
-        int discountedPrice = (int) (this.price * (1 - discountPercentage));
+        // Store original price if this is the first discount
+        if (originalPrice == 0) {
+            originalPrice = this.price;
+        }
+        int discountedPrice = (int) (this.originalPrice * (1 - discountPercentage));
         this.setPrice(discountedPrice);
+    }
+
+    public int getDiscountPercentage() {
+        if (originalPrice == 0 || originalPrice == price) {
+            return 0;
+        }
+        return (int) Math.round(((double) (originalPrice - price) / originalPrice) * 100);
+    }
+
+    public boolean hasDiscount() {
+        return originalPrice > 0 && price < originalPrice;
     }
 
     /* ======================== GETTERS ===================== */

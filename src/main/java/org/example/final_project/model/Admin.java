@@ -134,11 +134,14 @@ public class Admin extends Member {
             return -1;
         }
         
+        // Convert percentage (0-100) to decimal (0-1)
+        double discountDecimal = discountPercentage / 100.0;
+
         int itemsDiscounted = 0;
         ArrayList<FurnitureItem> items = warehouse.getInventory();
         for (FurnitureItem item : items) {
             if (item instanceof Discountable discountable) {
-                discountable.AddDiscount(discountPercentage);
+                discountable.AddDiscount(discountDecimal);
                 itemsDiscounted++;
             }
         }
@@ -150,12 +153,15 @@ public class Admin extends Member {
             throw new IllegalArgumentException("Discount percentage must be between 0 and 100");
         }
         
+        // Convert percentage (0-100) to decimal (0-1)
+        double discountDecimal = discountPercentage / 100.0;
+
         int totalDiscounted = 0;
         for (Warehouse warehouse : ECommerceSystem.getInstance().getAllWarehouses()) {
             ArrayList<FurnitureItem> items = warehouse.getInventory();
             for (FurnitureItem item : items) {
                 if (item instanceof Discountable discountable) {
-                    discountable.AddDiscount(discountPercentage);
+                    discountable.AddDiscount(discountDecimal);
                     totalDiscounted++;
                 }
             }
