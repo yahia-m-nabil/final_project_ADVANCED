@@ -8,11 +8,13 @@ public class ECommerceSystem {
     private MembersList membersData;
     private WarehouseList warehouseData;
     private Member currentMember;  // Session: currently logged-in member
+    private int discountPercentage;
 
     private ECommerceSystem() {
         this.membersData = new MembersList();
         this.warehouseData = new WarehouseList();
         this.currentMember = null;
+        this.discountPercentage = 0;
 
         // --- 1. STARTUP MEMBERS ---
         Admin admin = new Admin(99, "System Admin", "admin@system.com");
@@ -78,6 +80,14 @@ public class ECommerceSystem {
 
     public ArrayList<Warehouse> getAllWarehouses() {
         return warehouseData.getAllWarehouses();
+    }
+
+    public int getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public void setDiscountPercentage(int discountPercentage) {
+        this.discountPercentage = discountPercentage;
     }
 
     public Member findMemberById(int id) {

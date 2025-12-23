@@ -147,7 +147,7 @@ public class ProductCardController {
 
         // Show discount label with actual percentage if item has discount
         if (furnitureItem instanceof Discountable && furnitureItem.hasDiscount()) {
-            int discountPercentage = furnitureItem.getDiscountPercentage();
+            int discountPercentage = ECommerceSystem.getInstance().getDiscountPercentage();
             discountLabel.setText(discountPercentage + "% OFF");
             discountLabel.setVisible(true);
         } else {

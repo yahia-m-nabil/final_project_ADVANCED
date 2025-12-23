@@ -13,6 +13,7 @@ import org.example.final_project.model.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 public class StoreController {
@@ -102,22 +103,19 @@ public class StoreController {
      */
     public void loadProducts() {
         productGrid.getChildren().clear();
-
-        // Get items from selected warehouse only
         String selectedLocation = warehouseComboBox.getValue();
         if (selectedLocation == null) {
-            return; // No warehouse selected yet
+            return;
         }
-
         ECommerceSystem system = ECommerceSystem.getInstance();
         Warehouse warehouse = system.findWarehouseByLocation(selectedLocation);
         if (warehouse == null) {
             return;
         }
-
+        warehouse.sortInventoryByPrice();
         ArrayList<FurnitureItem> allItems = warehouse.getInventory();
 
-        // Apply Search and Checkbox Filters (using simple loops - KISS principle)
+
         ArrayList<FurnitureItem> filteredList = new ArrayList<>();
         for (FurnitureItem item : allItems) {
             if (passesSearch(item) && passesFilters(item)) {
@@ -182,7 +180,7 @@ public class StoreController {
                 list.sort((a, b) -> Integer.compare(b.getPrice(), a.getPrice()));
                 break;
             case "Product ID":
-                list.sort(Comparator.comparingInt(FurnitureItem::getItemID));
+               Collections.sort(list);
                 break;
         }
     }

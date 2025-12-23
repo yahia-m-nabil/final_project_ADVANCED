@@ -1,6 +1,6 @@
 package org.example.final_project.model;
 
-public class Table extends FurnitureItem implements Discountable {
+public class Table extends FurnitureItem  {
 
     /* ======================== CONSTRUCTOR ===================== */
 
@@ -21,10 +21,10 @@ public class Table extends FurnitureItem implements Discountable {
 
     /* ======================== DISCOUNT MANAGEMENT ===================== */
 
-    @Override
-    public void AddDiscount(double discountPercentage) {
-        applyDiscount(discountPercentage);
-    }
+//    @Override
+//    public void AddDiscount(double discountPercentage) {
+//    applyDiscount(discountPercentage);
+//    }
 
     /* ======================== STRING REPRESENTATION ===================== */
 

@@ -323,6 +323,7 @@ public class AdminController {
         if (result.isPresent()) {
             try {
                 double discount = Double.parseDouble(result.get());
+                ECommerceSystem.getInstance().setDiscountPercentage((int) discount);
                 int count = currentAdmin.applyGlobalDiscount(discount);
                 manageProducts();
                 showAlert("Success", "Discount applied to " + count + " items!");
